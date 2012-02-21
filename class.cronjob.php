@@ -39,13 +39,14 @@ class dbCronjobConfig extends dbConnectLE {
   const FIELD_TYPE = 'cfg_type';
   const FIELD_VALUE = 'cfg_value';
   const FIELD_LABEL = 'cfg_label';
-  const FIELD_DESCRIPTION = 'cfg_desc';
+  const FIELD_HINT = 'cfg_hint';
   const FIELD_STATUS = 'cfg_status';
   const FIELD_TIMESTAMP = 'cfg_timestamp';
   
   const STATUS_ACTIVE = 1;
   const STATUS_DELETED = 0;
   
+  /*
   const TYPE_UNDEFINED = 0;
   const TYPE_ARRAY = 7;
   const TYPE_BOOLEAN = 1;
@@ -70,6 +71,7 @@ class dbCronjobConfig extends dbConnectLE {
       self::TYPE_STRING => 'STRING', 
       self::TYPE_URL => 'URL'
   );
+  */
   
   private $createTables = false;
   private $message = '';
@@ -94,13 +96,13 @@ class dbCronjobConfig extends dbConnectLE {
   public function __construct($createTables = false) {
     $this->createTables = $createTables;
     parent::__construct();
-    $this->setTableName('mod_kit_cronjob_config');
+    $this->setTableName('mod_kit_cj_config');
     $this->addFieldDefinition(self::FIELD_ID, "INT(11) NOT NULL AUTO_INCREMENT", true);
     $this->addFieldDefinition(self::FIELD_NAME, "VARCHAR(32) NOT NULL DEFAULT ''");
-    $this->addFieldDefinition(self::FIELD_TYPE, "TINYINT UNSIGNED NOT NULL DEFAULT '" . self::TYPE_UNDEFINED . "'");
+    $this->addFieldDefinition(self::FIELD_TYPE, "ENUM('UNDEFINED','ARRAY','BOOLEAN','E-MAIL','FLOAT','INTEGER','LIST','PATH','STRING','URL')"); //"TINYINT UNSIGNED NOT NULL DEFAULT '" . self::TYPE_UNDEFINED . "'");
     $this->addFieldDefinition(self::FIELD_VALUE, "TEXT NOT NULL DEFAULT ''", false, false, true);
     $this->addFieldDefinition(self::FIELD_LABEL, "VARCHAR(64) NOT NULL DEFAULT '- undefined -'");
-    $this->addFieldDefinition(self::FIELD_DESCRIPTION, "VARCHAR(255) NOT NULL DEFAULT '- undefined -'");
+    $this->addFieldDefinition(self::FIELD_HINT, "VARCHAR(255) NOT NULL DEFAULT '- undefined -'");
     $this->addFieldDefinition(self::FIELD_STATUS, "TINYINT UNSIGNED NOT NULL DEFAULT '" . self::STATUS_ACTIVE . "'");
     $this->addFieldDefinition(self::FIELD_TIMESTAMP, "TIMESTAMP");
     $this->setIndexFields(array(self::FIELD_NAME));
@@ -410,7 +412,7 @@ class dbCronjobConfig extends dbConnectLE {
         $data[self::FIELD_NAME] = $item['name'];
         $data[self::FIELD_TYPE] = $item['type'];
         $data[self::FIELD_VALUE] = $item['value'];
-        $data[self::FIELD_DESCRIPTION] = $item['description'];
+        $data[self::FIELD_DESCRIPTION] = $item['hint'];
         if (!$this->sqlInsertRecord($data)) {
           $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $this->getError()));
           return false;
