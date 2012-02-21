@@ -31,3 +31,24 @@ if (defined('WB_PATH')) {
     }
 }
 // end include class.secure.php
+
+$PRECHECK['WB_VERSION'] = array('VERSION' => '2.8', 'OPERATOR' => '>=');
+$PRECHECK['PHP_VERSION'] = array('VERSION' => '5.2.0', 'OPERATOR' => '>=');
+$PRECHECK['WB_ADDONS'] = array(
+    'dbconnect_le'	=> array('VERSION' => '0.66', 'OPERATOR' => '>='),
+    'dwoo' => array('VERSION' => '0.11', 'OPERATOR' => '>=')
+);
+
+global $database;
+$sql = "SELECT `value` FROM `".TABLE_PREFIX."settings` WHERE `name`='default_charset'";
+$result = $database->query($sql);
+if ($result) {
+  $data = $result->fetchRow(MYSQL_ASSOC);
+  $PRECHECK['CUSTOM_CHECKS'] = array(
+      'Default Charset' => array(
+          'REQUIRED' => 'utf-8',
+          'ACTUAL' => $data['value'],
+          'STATUS' => ($data['value'] === 'utf-8')
+      )
+  );
+}

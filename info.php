@@ -39,10 +39,10 @@ $module_function = 'tool';
 $module_version = '0.10';
 $module_status = 'BETA';
 $module_platform = '2.8';
-$module_author = 'Ralf Hertsch, Berlin (Germany)';
+$module_author = 'Projekt EM & Ralf Hertsch - Berlin (Germany)';
 $module_license = 'GNU Public License (GPL)';
 $module_description = 'Cronjobs for KeepInTouch (KIT)';
-$module_home = 'http://phpmanufaktur.de/kit_form';
+$module_home = 'http://phpmanufaktur.de/kit_cronjob';
 $module_guid = 'BEDF5ED1-8C29-46A6-8A4C-0C71BBD5B80D';
 
 ?>

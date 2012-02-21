@@ -32,4 +32,7 @@ if (defined('WB_PATH')) {
 }
 // end include class.secure.php
 
-echo "ok";
+require_once WB_PATH.'/modules/kit_cronjob/class.backend.php';
+
+$tool = new cronjobBackend();
+$tool->action();

@@ -6,7 +6,7 @@
  * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
  * @link http://phpmanufaktur.de
  * @copyright 2012 - phpManufaktur by Ralf Hertsch
- * @license http://www.gnu.org/licenses/gpl.html GNU Public License
+ * @license http://www.gnu.org/licenses/gpl.html GNU Public License (GPL)
  * @version $Id$
  * 
  * FOR VERSION- AND RELEASE NOTES PLEASE LOOK AT INFO.TXT!
@@ -33,7 +33,7 @@ if (defined('WB_PATH')) {
 // end include class.secure.php
 
 // use LEPTON 2.x I18n for access to language files
-if (! class_exists('LEPTON_Helper_I18n')) require_once WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/framework/LEPTON/Helper/I18n.php';
+if (!class_exists('LEPTON_Helper_I18n')) require_once WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/framework/LEPTON/Helper/I18n.php';
 global $I18n;
 if (!is_object($I18n)) {
   $I18n = new LEPTON_Helper_I18n();
@@ -54,29 +54,23 @@ if (! file_exists(WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/langua
   if (! defined('KIT_FORM_LANGUAGE')) define('KIT_IDEA_LANGUAGE', LANGUAGE);
 }
 
-require_once WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/class.cronjob.php';
-
-global $admin;
-
-$tables = array(
-    'dbCronjobConfig'
-    );
-$error = '';
-
-foreach ($tables as $table) {
-  $create = null;
-  $create = new $table();
-  if (!$create->sqlTableExists()) {
-    if (!$create->sqlCreateTable()) {
-      $error .= sprintf('[INSTALLATION %s] %s', $table, $create->getError());
-    }
-  }
+if (!class_exists('Dwoo')) {
+  require_once WB_PATH.'/modules/dwoo/include.php';
 }
 
-// Prompt Errors
-if (!empty($error)) {
-  $admin->print_error($error);
+$cache_path = WB_PATH.'/temp/cache';
+if (!file_exists($cache_path)) mkdir($cache_path, 0755, true);
+$compiled_path = WB_PATH.'/temp/compiled';
+if (!file_exists($compiled_path)) mkdir($compiled_path, 0755, true);
+
+global $parser;
+if (!is_object($parser)) $parser = new Dwoo($compiled_path, $cache_path);
+
+if (!class_exists('dbconnectle')) {
+  require_once WB_PATH.'/modules/dbconnect_le/include.php';
 }
-else {
-  $admin->print_success('Thank you for using kitIdea!', ADMIN_URL.'/admintools/tool.php?tool=kit_idea&act=abt');
-}
+
+require_once WB_PATH.'/modules/kit_cronjob/class.cronjob.php';
+
+global $dbCronjobConfig;
+if (!is_object($dbCronjobConfig)) $dbCronjobConfig = new dbCronjobConfig();
