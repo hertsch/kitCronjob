@@ -54,7 +54,7 @@ if (! file_exists(WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/langua
   if (! defined('KIT_CRONJOB_LANGUAGE')) define('KIT_CRONJOB_LANGUAGE', LANGUAGE);
 }
 
-require_once WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/class.cronjob.php';
+require_once WB_PATH.'/modules/kit_cronjob/initialize.php';
 
 global $admin;
 
