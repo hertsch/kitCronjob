@@ -74,3 +74,6 @@ require_once WB_PATH.'/modules/kit_cronjob/class.cronjob.php';
 
 global $dbCronjobConfig;
 if (!is_object($dbCronjobConfig)) $dbCronjobConfig = new dbCronjobConfig();
+
+global $dbCronjob;
+if (!is_object($dbCronjob)) $dbCronjob = new dbCronjob();

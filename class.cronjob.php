@@ -43,8 +43,9 @@ class dbCronjobConfig extends dbConnectLE {
   const FIELD_STATUS = 'cfg_status';
   const FIELD_TIMESTAMP = 'cfg_timestamp';
   
-  const STATUS_ACTIVE = 1;
-  const STATUS_DELETED = 0;
+  const STATUS_ACTIVE = 'ACTIVE';
+  const STATUS_DELETED = 'DELETED';
+  const STATUS_LOCKED = 'LOCKED';
   
   const TYPE_UNDEFINED = 'UNDEFINED';
   const TYPE_ARRAY = 'ARRAY';
@@ -57,26 +58,11 @@ class dbCronjobConfig extends dbConnectLE {
   const TYPE_STRING = 'STRING';
   const TYPE_URL = 'URL';
   
-  /*
-  public $type_array = array(
-    
-      self::TYPE_UNDEFINED => '-UNDEFINED-', 
-      self::TYPE_ARRAY => 'ARRAY', 
-      self::TYPE_BOOLEAN => 'BOOLEAN', 
-      self::TYPE_EMAIL => 'E-MAIL', 
-      self::TYPE_FLOAT => 'FLOAT', 
-      self::TYPE_INTEGER => 'INTEGER', 
-      self::TYPE_LIST => 'LIST', 
-      self::TYPE_PATH => 'PATH', 
-      self::TYPE_STRING => 'STRING', 
-      self::TYPE_URL => 'URL'
-  );
-  */
-  
-  private $createTables = false;
+  private $createTable = false;
   private $message = '';
   
   const CFG_CRONJOB_KEY = 'cfg_cronjob_key';
+  const CFG_CRONJOB_ACTIVE = 'cfg_cronjob_active';
   
   public $config_array = array(
       array(        
@@ -85,31 +71,38 @@ class dbCronjobConfig extends dbConnectLE {
           'type' => self::TYPE_STRING, 
           'value' => '', 
           'hint' => 'HINT_CFG_CRONJOB_KEY'
-      )
+      ),
+      array(
+          'label' => 'LABEL_CFG_CRONJOB_ACTIVE',
+          'name' => self::CFG_CRONJOB_ACTIVE,
+          'type' => self::TYPE_BOOLEAN,
+          'value' => 1,
+          'hint' => 'HINT_CFG_CRONJOB_ACTIVE'
+          )
   );
   
   /**
    * Constructor
    * 
-   * @param $createTables boolean         
+   * @param $createTable boolean         
    */
-  public function __construct($createTables = false) {
-    $this->createTables = $createTables;
+  public function __construct($createTable = false) {
+    $this->createTable = $createTable;
     parent::__construct();
-    $this->setTableName('mod_kit_cj_cfg');
+    $this->setTableName('mod_kit_cj_config');
     $this->addFieldDefinition(self::FIELD_ID, "INT(11) NOT NULL AUTO_INCREMENT", true);
     $this->addFieldDefinition(self::FIELD_NAME, "VARCHAR(32) NOT NULL DEFAULT ''");
-    $this->addFieldDefinition(self::FIELD_TYPE, "ENUM('UNDEFINED','ARRAY','BOOLEAN','EMAIL','FLOAT','INTEGER','LIST','PATH','STRING','URL')"); //"TINYINT UNSIGNED NOT NULL DEFAULT '" . self::TYPE_UNDEFINED . "'");
-    $this->addFieldDefinition(self::FIELD_VALUE, "TEXT NOT NULL DEFAULT ''", false, false, true);
+    $this->addFieldDefinition(self::FIELD_TYPE, "ENUM('UNDEFINED','ARRAY','BOOLEAN','EMAIL','FLOAT','INTEGER','LIST','PATH','STRING','URL') NOT NULL DEFAULT 'UNDEFINED'"); //"TINYINT UNSIGNED NOT NULL DEFAULT '" . self::TYPE_UNDEFINED . "'");
+    $this->addFieldDefinition(self::FIELD_VALUE, "TEXT", false, false, true);
     $this->addFieldDefinition(self::FIELD_LABEL, "VARCHAR(64) NOT NULL DEFAULT '- undefined -'");
-    $this->addFieldDefinition(self::FIELD_HINT, "VARCHAR(255) NOT NULL DEFAULT '- undefined -'");
-    $this->addFieldDefinition(self::FIELD_STATUS, "TINYINT UNSIGNED NOT NULL DEFAULT '" . self::STATUS_ACTIVE . "'");
+    $this->addFieldDefinition(self::FIELD_HINT, "TEXT");
+    $this->addFieldDefinition(self::FIELD_STATUS, "ENUM('ACTIVE','LOCKED','DELETED') NOT NULL DEFAULT 'ACTIVE'");
     $this->addFieldDefinition(self::FIELD_TIMESTAMP, "TIMESTAMP");
     $this->setIndexFields(array(self::FIELD_NAME));
     $this->setAllowedHTMLtags('<a><abbr><acronym><span>');
     $this->checkFieldDefinitions();
     // Tabelle erstellen
-    if ($this->createTables) {
+    if ($this->createTable) {
       if (!$this->sqlTableExists()) {
         if (!$this->sqlCreateTable()) {
           $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $this->getError()));
@@ -168,7 +161,7 @@ class dbCronjobConfig extends dbConnectLE {
     }
     if (count($config) < 1) {
       $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, 
-          $this->lang->translate('There is no record for the configuration of <b>{{ name }}</b>!', 
+          $this->lang->translate('Error: There is no record for the configuration of <b>{{ name }}</b>!', 
               array('name' => $name))));
       return false;
     }
@@ -270,7 +263,7 @@ class dbCronjobConfig extends dbConnectLE {
     }
     if (sizeof($config) < 1) {
       $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, 
-          $this->lang->translate('The record with the <b>ID {{ id }}</b> does not exists!', 
+          $this->lang->translate('Error: The record with the <b>ID {{ id }}</b> does not exists!', 
               array('id' => $id))));
       return false;
     }
@@ -352,7 +345,7 @@ class dbCronjobConfig extends dbConnectLE {
     }
     if (sizeof($config) < 1) {
       $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, 
-          $this->lang->translate('There is no record for the configuration of <b>{{ name }}</b>!', 
+          $this->lang->translate('Error: There is no record for the configuration of <b>{{ name }}</b>!', 
               array('name' => $name))));
       return false;
     }
@@ -412,7 +405,7 @@ class dbCronjobConfig extends dbConnectLE {
         $data[self::FIELD_NAME] = $item['name'];
         $data[self::FIELD_TYPE] = $item['type'];
         $data[self::FIELD_VALUE] = $item['value'];
-        $data[self::FIELD_DESCRIPTION] = $item['hint'];
+        $data[self::FIELD_HINT] = $item['hint'];
         if (!$this->sqlInsertRecord($data)) {
           $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $this->getError()));
           return false;
@@ -423,3 +416,69 @@ class dbCronjobConfig extends dbConnectLE {
   }
 
 } // class dbKITcronjobConfig
+
+class dbCronjob extends dbConnectLE {
+  
+  const FIELD_ID = 'cj_id';
+  const FIELD_NAME = 'cj_name';
+  const FIELD_DESCRIPTION = 'cj_description';
+  const FIELD_MINUTE = 'cj_minute';
+  const FIELD_HOUR = 'cj_hour';
+  const FIELD_DAY = 'cj_day';
+  const FIELD_MONTH = 'cj_month';
+  const FIELD_YEAR = 'cj_year';
+  const FIELD_PERIODIC = 'cj_periodic';
+  const FIELD_COMMAND = 'cj_command';
+  const FIELD_LAST_STATUS = 'cj_last_status';
+  const FIELD_LAST_RUN = 'cj_last_run';
+  const FIELD_NEXT_RUN = 'cj_next_run';
+  const FIELD_STATUS = 'cj_status';
+  const FIELD_TIMESTAMP = 'cj_timestamp';
+  
+  const STATUS_ACTIVE = 'ACTIVE';
+  const STATUS_LOCKED = 'LOCKED';
+  const STATUS_DELETED = 'DELETED';
+  
+  const PERIODIC_YES = 'YES';
+  const PERIODIC_NO = 'NO';
+  
+  private $createTable = false;
+  
+  /**
+   * Constructor
+   *
+   * @param $createTable boolean
+   */
+  public function __construct($createTable = false) {
+    $this->createTable = $createTable;
+    parent::__construct();
+    $this->setTableName('mod_kit_cj_cronjob');
+    $this->addFieldDefinition(self::FIELD_ID, "INT(11) NOT NULL AUTO_INCREMENT", true);
+    $this->addFieldDefinition(self::FIELD_NAME, "VARCHAR(64) NOT NULL DEFAULT ''");
+    $this->addFieldDefinition(self::FIELD_DESCRIPTION, "TEXT");
+    $this->addFieldDefinition(self::FIELD_MINUTE, "ENUM('*','0','5','10','15','20','25','30','35','40','45','50','55') DEFAULT '*'");
+    $this->addFieldDefinition(self::FIELD_HOUR, "ENUM('*','0','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23') DEFAULT '*'");
+    $this->addFieldDefinition(self::FIELD_DAY, "ENUM('*','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31') DEFAULT '*'");
+    $this->addFieldDefinition(self::FIELD_MONTH, "ENUM('*','1','2','3','4','5','6','7','8','9','10','11','12') DEFAULT '*'");
+    $this->addFieldDefinition(self::FIELD_YEAR, "ENUM('*','2012','2013','2014','2015','2016','2017','2018','2019','2020','2021','2022') DEFAULT '*'");
+    $this->addFieldDefinition(self::FIELD_PERIODIC, "ENUM('YES', 'NO') DEFAULT 'YES'");
+    $this->addFieldDefinition(self::FIELD_COMMAND, "TEXT");
+    $this->addFieldDefinition(self::FIELD_LAST_RUN, "DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00'");
+    $this->addFieldDefinition(self::FIELD_LAST_STATUS, "TEXT");
+    $this->addFieldDefinition(self::FIELD_NEXT_RUN, "DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00'");
+    $this->addFieldDefinition(self::FIELD_STATUS, "ENUM('ACTIVE','LOCKED','DELETED') DEFAULT 'ACTIVE'");
+    $this->addFieldDefinition(self::FIELD_TIMESTAMP, "TIMESTAMP");
+    $this->checkFieldDefinitions();
+    // set timezone
+    date_default_timezone_set(CFG_TIME_ZONE);
+    // Tabelle erstellen
+    if ($this->createTable) {
+      if (!$this->sqlTableExists()) {
+        if (!$this->sqlCreateTable()) {
+          $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $this->getError()));
+        }
+      }
+    }
+  } // __construct()
+  
+} // class CronjobList

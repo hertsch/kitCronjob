@@ -1,0 +1,37 @@
+{*
+ * kitCronjob
+ *
+ * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @link http://phpmanufaktur.de
+ * @copyright 2012
+ * @license http://www.gnu.org/licenses/gpl.html GNU Public License (GPL)
+ * @version $Id$
+ *
+ * Please consult the Dwoo Documentation & WIKI to get further informations 
+ * and hints for the usage of the Dwoo template engine.
+ *
+ * @link http://wiki.dwoo.org/
+ *
+ * Use {dump()} to get a list of all in this template available variables!
+ *}
+<div id="idea_config">
+  <form name="{$form_name}" action="{$form_action}" method="post">
+    <input type="hidden" name="{$action_name}" value="{$action_value}" />
+    <h2>{$head}</h2>
+    <div class="{if $is_message == 1}message{else}intro{/if}">{$intro}</div>
+{dump()}
+    <table width="100%">
+      <colgroup>
+        <col width="200" /> 
+        <col width="*" />
+        <col width="450" />
+      </colgroup>
+      {foreach $fields field}
+      <tr>
+        <td>{$field.label}</td>
+        <td>{$field.value}</td>
+        <td>{$field.hint}</td>
+      </tr>
+      {/foreach}
+  </form>
+</div>

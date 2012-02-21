@@ -40,6 +40,9 @@ class cronjobBackend {
   const ACTION_CONFIG = 'cfg';
   const ACTION_CONFIG_CHECK = 'cfgc';
   const ACTION_DEFAULT = 'def';
+  const ACTION_CRONJOBS = 'cron';
+  const ACTION_EDIT = 'edt';
+  const ACTION_EDIT_CHECK = 'edtc';
 
   private $page_link = '';
   private $img_url = '';
@@ -58,8 +61,10 @@ class cronjobBackend {
     date_default_timezone_set(CFG_TIME_ZONE);
     $this->lang = $I18n;
     $this->tab_navigation_array = array(
+        self::ACTION_CRONJOBS => $this->lang->translate('Cronjobs'),
+        self::ACTION_EDIT => $this->lang->translate('Edit'),
         self::ACTION_CONFIG => $this->lang->translate('Settings'), 
-        self::ACTION_ABOUT => $this->lang->translate('About')
+        self::ACTION_ABOUT => $this->lang->translate('About')        
     );
   } // __construct()
   
@@ -68,7 +73,7 @@ class cronjobBackend {
    * 
    * @param $error STR         
    */
-  public function setError($error) {
+  protected function setError($error) {
     $this->error = $error;
   } // setError()
   /**
@@ -87,20 +92,23 @@ class cronjobBackend {
   public function isError() {
     return (bool) !empty($this->error);
   } // isError
+  
   /**
    * Reset Error to empty String
    */
-  public function clearError() {
+  protected function clearError() {
     $this->error = '';
   }
+  
   /**
    * Set $this->message to $message
    * 
    * @param $message STR         
    */
-  public function setMessage($message) {
+  protected function setMessage($message) {
     $this->message = $message;
   } // setMessage()
+  
   /**
    * Get Message from $this->message;
    * 
@@ -109,6 +117,7 @@ class cronjobBackend {
   public function getMessage() {
     return $this->message;
   } // getMessage()
+  
   /**
    * Check if $this->message is empty
    * 
@@ -117,6 +126,7 @@ class cronjobBackend {
   public function isMessage() {
     return (bool) !empty($this->message);
   } // isMessage
+  
   /**
    * Return Version of Module
    * 
@@ -139,13 +149,14 @@ class cronjobBackend {
     }
     return -1;
   } // getVersion()
+  
   /**
    * Return the needed template
    * 
    * @param $template string         
    * @param $template_data array         
    */
-  public function getTemplate($template, $template_data) {
+  protected function getTemplate($template, $template_data) {
     global $parser;
     try {
       $result = $parser->get($this->template_path . $template, $template_data);
@@ -158,6 +169,7 @@ class cronjobBackend {
     }
     return $result;
   } // getTemplate()
+  
   /**
    * Verhindert XSS Cross Site Scripting
    * 
@@ -165,7 +177,7 @@ class cronjobBackend {
    *          Array
    * @return $request
    */
-  public function xssPrevent(&$request) {
+  protected function xssPrevent(&$request) {
     if (is_string($request)) {
       $request = html_entity_decode($request);
       $request = strip_tags($request);
@@ -174,6 +186,7 @@ class cronjobBackend {
     }
     return $request;
   } // xssPrevent()
+  
   /**
    * Action handler of the class
    * 
@@ -199,6 +212,12 @@ class cronjobBackend {
       case self::ACTION_ABOUT :
         $this->show(self::ACTION_ABOUT, $this->dlgAbout());
         break;
+      case self::ACTION_EDIT:
+        $this->show(self::ACTION_EDIT, $this->dlgEdit());
+        break;
+      case self::ACTION_EDIT_CHECK:
+        $this->show(self::ACTION_EDIT, $this->checkEdit());
+        break;
       default :
         $this->show(self::ACTION_ABOUT, $this->dlgAbout());
         break;
@@ -213,7 +232,7 @@ class cronjobBackend {
    *
    * @return ECHO RESULT
    */
-  public function show($action, $content) {
+  protected function show($action, $content) {
     $navigation = array();
     foreach ($this->tab_navigation_array as $key => $value) {
     		$navigation[] = array(
@@ -236,7 +255,7 @@ class cronjobBackend {
    *
    * @return STR dialog
    */
-  public function dlgAbout() {
+  protected function dlgAbout() {
     $data = array(
         'version' => sprintf('%01.2f', $this->getVersion()),
         'img_url' => $this->img_url,
@@ -250,7 +269,7 @@ class cronjobBackend {
    *
    * @return STR dialog
    */
-  public function dlgConfig() {
+  protected function dlgConfig() {
     global $dbCronjobConfig;
   
     $SQL = sprintf(	"SELECT * FROM %s WHERE NOT %s='%s' ORDER BY %s",
@@ -283,8 +302,8 @@ class cronjobBackend {
           'identifier' => $this->lang->translate($entry[dbCronjobConfig::FIELD_LABEL]),
           'value' => $value,
           'name' => sprintf('%s_%s', dbCronjobConfig::FIELD_VALUE, $id),
-          'description' => $this->lang->translate($entry[dbCronjobConfig::FIELD_DESCRIPTION]),
-          'type' => $dbCronjobConfig->type_array[$entry[dbCronjobConfig::FIELD_TYPE]],
+          'description' => $this->lang->translate($entry[dbCronjobConfig::FIELD_HINT]),
+          'type' => $entry[dbCronjobConfig::FIELD_TYPE],
           'field' => $entry[dbCronjobConfig::FIELD_NAME]
       );
     }
@@ -296,7 +315,7 @@ class cronjobBackend {
         'items_name' => self::REQUEST_ITEMS,
         'items_value' => implode(",", $count),
         'head' => $this->lang->translate('Settings'),
-        'intro' => $this->isMessage() ? $this->getMessage() : $this->lang->translate('Edit the settings for kitIdea.'),
+        'intro' => $this->isMessage() ? $this->getMessage() : $this->lang->translate('Edit the settings for kitCronjob.'),
         'is_message' => $this->isMessage() ? 1 : 0,
         'items' => $items,
         'btn_ok' => $this->lang->translate('OK'),
@@ -313,7 +332,7 @@ class cronjobBackend {
    *
    * @return STR DIALOG dlgConfig()
    */
-  public function checkConfig() {
+  protected function checkConfig() {
     global $dbCronjobConfig;
     
     $message = '';
@@ -359,5 +378,99 @@ class cronjobBackend {
     $this->setMessage($message);
     return $this->dlgConfig();
   } // checkConfig()
+  
+  protected function dlgEdit() {
+    global $dbCronjob;
+    
+    $id = isset($_REQUEST[dbCronjob::FIELD_ID]) ? (int) $_REQUEST[dbCronjob::FIELD_ID] : -1;
+    
+    if ($id < 1) {
+      // create a new cronjob
+      $fields = $dbCronjob->getFields();
+      $fields[dbCronjob::FIELD_NAME] = '';
+      $fields[dbCronjob::FIELD_DESCRIPTION] = '';
+      $fields[dbCronjob::FIELD_MINUTE] = '*';
+      $fields[dbCronjob::FIELD_HOUR] = '*';
+      $fields[dbCronjob::FIELD_DAY] = '*';
+      $fields[dbCronjob::FIELD_MONTH] = '*';
+      $fields[dbCronjob::FIELD_YEAR] = '*';
+      $fields[dbCronjob::FIELD_PERIODIC] = dbCronjob::PERIODIC_YES;
+      $fields[dbCronjob::FIELD_COMMAND] = '';
+      $fields[dbCronjob::FIELD_LAST_STATUS] = '';
+      $fields[dbCronjob::FIELD_LAST_RUN] = '0000-00-00 00:00:00';
+      $fields[dbCronjob::FIELD_NEXT_RUN] = '0000-00-00 00:00:00';
+      $fields[dbCronjob::FIELD_STATUS] = dbCronjob::STATUS_ACTIVE;
+    }
+    else {
+      $SQL = sprintf("SELECT * FROM %s WHERE %s='%s'",
+          $dbCronjob->getTableName(),
+          dbCronjob::FIELD_ID,
+          $id);
+      $fields = array();
+      if (!$dbCronjob->sqlExec($SQL, $fields)) {
+        $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbCronjob->getError()));
+        return false;
+      }
+      if (count($fields) < 1) {
+        $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, 
+            $this->lang->translate('Error: The record with the <b>ID {{ id }} does not exists!', 
+            array('id' => $id))));
+        return false;
+      }
+      $fields = $fields[0];
+    }
+    
+    unset($fields[dbCronjob::FIELD_ID]);
+    
+    // walk through the fields and check for $_REQUESTs
+    foreach ($dbCronjob->getFields() as $key => $value) {
+      if ($key == dbCronjob::FIELD_ID) continue;
+      if (isset($_REQUEST[$key])) $fields[$key] = $_REQUEST[$key];
+    }
+    
+    $items = array();
+    // walk through the fields and build the $items array for the template
+    foreach ($fields as $key => $value) {
+      switch ($key):
+      case dbCronjob::FIELD_COMMAND:
+      case dbCronjob::FIELD_DESCRIPTION:
+      case dbCronjob::FIELD_NAME:
+      case dbCronjob::FIELD_LAST_STATUS:
+      case dbCronjob::FIELD_MINUTE:
+      case dbCronjob::FIELD_HOUR:
+      case dbCronjob::FIELD_DAY:
+      case dbCronjob::FIELD_MONTH:
+        // textfields
+        $items[$key] = array(
+            'name' => $key,
+            'value' => $value,
+            'label' => $this->lang->translate('LABEL_'.strtoupper($key)),
+            'hint' => $this->lang->translate('HINT_'.strtoupper($key))
+            );
+        break;
+      default:
+        break;
+      endswitch;
+    }
+    
+    $data = array(
+        'form_name' => 'cronjob_edit',
+        'form_action' => $this->page_link,
+        'action_name' => self::REQUEST_ACTION,
+        'action_value' => self::ACTION_EDIT_CHECK,
+        'head' => $this->lang->translate('Cronjobs'),
+        'intro' => $this->isMessage() ? $this->getMessage() : $this->lang->translate('Edit an existing cronjob or create a new one.'),
+        'is_message' => $this->isMessage() ? 1 : 0,
+        'fields' => $items,
+        'btn_ok' => $this->lang->translate('OK'),
+        'btn_abort' => $this->lang->translate('Abort'),
+        'abort_location' => $this->page_link,
+        );
+    return $this->getTemplate('backend.cronjob.lte', $data);
+  } // dlgEdit()
+  
+  protected function checkEdit() {
+    return __METHOD__;
+  } // checkEdit()
   
 } // class cronjobBackend

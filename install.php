@@ -59,7 +59,8 @@ require_once WB_PATH.'/modules/kit_cronjob/initialize.php';
 global $admin;
 
 $tables = array(
-    'dbCronjobConfig'
+    'dbCronjobConfig',
+    'dbCronjob'
     );
 $error = '';
 
