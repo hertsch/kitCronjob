@@ -46,18 +46,18 @@ class dbCronjobConfig extends dbConnectLE {
   const STATUS_ACTIVE = 1;
   const STATUS_DELETED = 0;
   
-  /*
-  const TYPE_UNDEFINED = 0;
-  const TYPE_ARRAY = 7;
-  const TYPE_BOOLEAN = 1;
-  const TYPE_EMAIL = 2;
-  const TYPE_FLOAT = 3;
-  const TYPE_INTEGER = 4;
-  const TYPE_LIST = 9;
-  const TYPE_PATH = 5;
-  const TYPE_STRING = 6;
-  const TYPE_URL = 8;
+  const TYPE_UNDEFINED = 'UNDEFINED';
+  const TYPE_ARRAY = 'ARRAY';
+  const TYPE_BOOLEAN = 'BOOLEAN';
+  const TYPE_EMAIL = 'EMAIL';
+  const TYPE_FLOAT = 'FLOAT';
+  const TYPE_INTEGER = 'INTEGER';
+  const TYPE_LIST = 'LIST';
+  const TYPE_PATH = 'PATH';
+  const TYPE_STRING = 'STRING';
+  const TYPE_URL = 'URL';
   
+  /*
   public $type_array = array(
     
       self::TYPE_UNDEFINED => '-UNDEFINED-', 
@@ -96,10 +96,10 @@ class dbCronjobConfig extends dbConnectLE {
   public function __construct($createTables = false) {
     $this->createTables = $createTables;
     parent::__construct();
-    $this->setTableName('mod_kit_cj_config');
+    $this->setTableName('mod_kit_cj_cfg');
     $this->addFieldDefinition(self::FIELD_ID, "INT(11) NOT NULL AUTO_INCREMENT", true);
     $this->addFieldDefinition(self::FIELD_NAME, "VARCHAR(32) NOT NULL DEFAULT ''");
-    $this->addFieldDefinition(self::FIELD_TYPE, "ENUM('UNDEFINED','ARRAY','BOOLEAN','E-MAIL','FLOAT','INTEGER','LIST','PATH','STRING','URL')"); //"TINYINT UNSIGNED NOT NULL DEFAULT '" . self::TYPE_UNDEFINED . "'");
+    $this->addFieldDefinition(self::FIELD_TYPE, "ENUM('UNDEFINED','ARRAY','BOOLEAN','EMAIL','FLOAT','INTEGER','LIST','PATH','STRING','URL')"); //"TINYINT UNSIGNED NOT NULL DEFAULT '" . self::TYPE_UNDEFINED . "'");
     $this->addFieldDefinition(self::FIELD_VALUE, "TEXT NOT NULL DEFAULT ''", false, false, true);
     $this->addFieldDefinition(self::FIELD_LABEL, "VARCHAR(64) NOT NULL DEFAULT '- undefined -'");
     $this->addFieldDefinition(self::FIELD_HINT, "VARCHAR(255) NOT NULL DEFAULT '- undefined -'");
