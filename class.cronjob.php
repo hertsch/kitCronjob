@@ -32,8 +32,6 @@ if (defined('WB_PATH')) {
 }
 // end include class.secure.php
 
-require_once (WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/initialize.php');
-
 class dbCronjobConfig extends dbConnectLE {
   
   const FIELD_ID = 'cfg_id';

@@ -49,9 +49,9 @@ if (!file_exists(WB_PATH.'/modules/' . basename(dirname(__FILE__)) . '/languages
   require_once(WB_PATH .'/modules/'.basename(dirname(__FILE__)).'/languages/' .LANGUAGE .'.cfg.php');
 }
 if (! file_exists(WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/languages/' . LANGUAGE . '.php')) {
-  if (! defined('KIT_FORM_LANGUAGE')) define('KIT_IDEA_LANGUAGE', 'DE'); // important: language flag is used by template selection
+  if (! defined('KIT_CRONJOB_LANGUAGE')) define('KIT_CRONJOB_LANGUAGE', 'DE'); // important: language flag is used by template selection
 } else {
-  if (! defined('KIT_FORM_LANGUAGE')) define('KIT_IDEA_LANGUAGE', LANGUAGE);
+  if (! defined('KIT_CRONJOB_LANGUAGE')) define('KIT_CRONJOB_LANGUAGE', LANGUAGE);
 }
 
 require_once WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/class.cronjob.php';
