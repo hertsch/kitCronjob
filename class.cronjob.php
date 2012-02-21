@@ -393,7 +393,7 @@ class dbCronjobConfig extends dbConnectLE {
   public function checkConfig() {
     foreach ($this->config_array as $item) {
       $where = array();
-      $where[self::FIELD_NAME] = $item[1];
+      $where[self::FIELD_NAME] = $item['name'];
       $check = array();
       if (!$this->sqlSelectRecord($where, $check)) {
         $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $this->getError()));
