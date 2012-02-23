@@ -389,17 +389,18 @@ class cronjobBackend {
       $fields = $dbCronjob->getFields();
       $fields[dbCronjob::FIELD_NAME] = '';
       $fields[dbCronjob::FIELD_DESCRIPTION] = '';
-      $fields[dbCronjob::FIELD_MINUTE] = '*';
-      $fields[dbCronjob::FIELD_HOUR] = '*';
-      $fields[dbCronjob::FIELD_DAY] = '*';
-      $fields[dbCronjob::FIELD_MONTH] = '*';
-      $fields[dbCronjob::FIELD_YEAR] = '*';
+      $fields[dbCronjob::FIELD_MINUTE] = array('*');
+      $fields[dbCronjob::FIELD_HOUR] = array('*');
+      $fields[dbCronjob::FIELD_DAY] = array('*');
+      $fields[dbCronjob::FIELD_MONTH] = array('*');
+      $fields[dbCronjob::FIELD_YEAR] = array('*');
       $fields[dbCronjob::FIELD_PERIODIC] = dbCronjob::PERIODIC_YES;
       $fields[dbCronjob::FIELD_COMMAND] = '';
       $fields[dbCronjob::FIELD_LAST_STATUS] = '';
       $fields[dbCronjob::FIELD_LAST_RUN] = '0000-00-00 00:00:00';
       $fields[dbCronjob::FIELD_NEXT_RUN] = '0000-00-00 00:00:00';
       $fields[dbCronjob::FIELD_STATUS] = dbCronjob::STATUS_ACTIVE;
+      $fields[dbCronjob::FIELD_TIMESTAMP] = '0000-00-00 00:00:00';
     }
     else {
       $SQL = sprintf("SELECT * FROM %s WHERE %s='%s'",
@@ -431,26 +432,48 @@ class cronjobBackend {
     $items = array();
     // walk through the fields and build the $items array for the template
     foreach ($fields as $key => $value) {
+      
+      $items[$key] = array(
+          'name' => $key,
+          'value' => $value,
+          'label' => $this->lang->translate('LABEL_'.strtoupper($key)),
+          'hint' => $this->lang->translate('HINT_'.strtoupper($key))
+      );
+      
       switch ($key):
-      case dbCronjob::FIELD_COMMAND:
-      case dbCronjob::FIELD_DESCRIPTION:
-      case dbCronjob::FIELD_NAME:
-      case dbCronjob::FIELD_LAST_STATUS:
       case dbCronjob::FIELD_MINUTE:
       case dbCronjob::FIELD_HOUR:
       case dbCronjob::FIELD_DAY:
       case dbCronjob::FIELD_MONTH:
-        // textfields
-        $items[$key] = array(
-            'name' => $key,
-            'value' => $value,
-            'label' => $this->lang->translate('LABEL_'.strtoupper($key)),
-            'hint' => $this->lang->translate('HINT_'.strtoupper($key))
-            );
+      case dbCronjob::FIELD_YEAR:
+      case dbCronjob::FIELD_PERIODIC:
+      case dbCronjob::FIELD_STATUS:
+        // ENUM() fields
+        $entries = array();
+        if (!$dbCronjob->enumColumn2array($key, $entries)) {
+          $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbCronjob->getError()));
+          return false;
+        }
+        $items[$key]['options'] = $entries;
         break;
+      case dbCronjob::FIELD_LAST_RUN:
+      case dbCronjob::FIELD_NEXT_RUN:
+      case dbCronjob::FIELD_TIMESTAMP:
+        if ($value == '0000-00-00 00:00:00') {
+          $items[$key]['formatted'] = '';
+        }
+        else {
+          $items[$key]['formatted'] = date(CFG_DATETIME_STR, strtotime($value));
+        }
       default:
         break;
       endswitch;
+    }
+
+    $entries = array();
+    if (!$dbCronjob->enumColumn2array(dbCronjob::FIELD_DAY, $entries)) {
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbCronjob->getError()));
+      return false;
     }
     
     $data = array(

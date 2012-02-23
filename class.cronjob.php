@@ -60,6 +60,7 @@ class dbCronjobConfig extends dbConnectLE {
   
   private $createTable = false;
   private $message = '';
+  private $lang = NULL;
   
   const CFG_CRONJOB_KEY = 'cfg_cronjob_key';
   const CFG_CRONJOB_ACTIVE = 'cfg_cronjob_active';
@@ -87,7 +88,9 @@ class dbCronjobConfig extends dbConnectLE {
    * @param $createTable boolean         
    */
   public function __construct($createTable = false) {
+    global $I18n;
     $this->createTable = $createTable;
+    $this->lang = $I18n; 
     parent::__construct();
     $this->setTableName('mod_kit_cj_config');
     $this->addFieldDefinition(self::FIELD_ID, "INT(11) NOT NULL AUTO_INCREMENT", true);
@@ -443,6 +446,7 @@ class dbCronjob extends dbConnectLE {
   const PERIODIC_NO = 'NO';
   
   private $createTable = false;
+  private $lang = NULL;
   
   /**
    * Constructor
@@ -450,7 +454,11 @@ class dbCronjob extends dbConnectLE {
    * @param $createTable boolean
    */
   public function __construct($createTable = false) {
+    global $I18n;
+    
     $this->createTable = $createTable;
+    $this->lang = $I18n;
+    
     parent::__construct();
     $this->setTableName('mod_kit_cj_cronjob');
     $this->addFieldDefinition(self::FIELD_ID, "INT(11) NOT NULL AUTO_INCREMENT", true);
@@ -480,5 +488,36 @@ class dbCronjob extends dbConnectLE {
       }
     }
   } // __construct()
+
+  /**
+   * This function reads entries from type definition of ENUM() fields and
+   * return an array with the values of the ENUM() string.
+   * 
+   * @param string $field
+   * @param reference string $entries
+   * @return boolean - true on success
+   */
+  public function enumColumn2array($field, &$entries) {
+    $SQL = sprintf("SHOW COLUMNS FROM %s WHERE FIELD = '%s'", $this->getTableName(), $field);
+    $result = array();
+    if (!$this->sqlExec($SQL, $result)) {
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $this->getError()));
+      return false;
+    }
+    if (!isset($result[0]['Type'])) {
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, 
+          $this->lang->translate('Error: The field <b>{{ field }}</b> does not exists!', array('field' => $field))));
+      return false;
+    }
+    preg_match('#enum\((.*?)\)#i', $result[0]['Type'], $enum);
+    if (!isset($enum[1])) {
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, 
+          $this->lang->translate('Error: The field <b>{{ field }}</b> seems not of type <b>ENUM()</b>, can\'t read any values!', 
+              array('field' => $field))));
+      return false;
+    }
+    $entries = explode(",", str_replace("'", "", $enum[1]));
+    return true;
+  } // enumColumn2array()
   
 } // class CronjobList

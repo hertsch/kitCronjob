@@ -19,7 +19,6 @@
     <input type="hidden" name="{$action_name}" value="{$action_value}" />
     <h2>{$head}</h2>
     <div class="{if $is_message == 1}message{else}intro{/if}">{$intro}</div>
-{dump()}
     <table width="100%">
       <colgroup>
         <col width="200" /> 
@@ -29,9 +28,44 @@
       {foreach $fields field}
       <tr>
         <td>{$field.label}</td>
+        {if $field.name == 'cj_name' || $field.name == 'cj_command'}
+        <td><input type="text" name="{$field.name}" value="{$field.value}" /></td>
+        {elseif $field.name == 'cj_description'}
+        <td><textarea name="{$field.name}">{$field.value}</textarea></td>
+        {elseif $field.name == 'cj_minute' || $field.name == 'cj_hour' || $field.name == 'cj_day' || 
+          $field.name == 'cj_month' || $field.name == 'cj_year'}
+        <td>
+          <select name="{$field.name}[]" size="3" multiple="multiple">
+            {foreach $field.options option}
+            <option value="{$option}"{foreach $field.value value}{if $value == $option}selected="selected"{/if}{/foreach}>{$option}</option>
+            {/foreach}
+          </select>
+        </td>
+        {elseif $field.name == 'cj_periodic' || $field.name == 'cj_status'}
+        <td>
+          <select name="{$field.name}" size="1">
+            {foreach $field.options option}
+            <option value="{$option}"{if $option == $field.value} selected="selected"{/if}>{$option}</option>
+            {/foreach}
+          </select>
+        </td>
+        {elseif $field.name == 'cj_last_run' || $field.name == 'cj_next_run' || $field.name == 'cj_timestamp'}
+        <td>{$field.formatted}</td>
+        {elseif $field.name == 'cj_last_status'}
         <td>{$field.value}</td>
+        {else}
+        <td>--> undefined field name: {$field.name}!</td>
+        {/if}
         <td>{$field.hint}</td>
       </tr>
       {/foreach}
+      <tr><td colspan="3">&nbsp;</td></tr>
+      <tr>
+        <td>&nbsp;</td>
+        <td colspan="2">
+          <input type="submit" value="{$btn_ok}" />&nbsp;
+          <input type="button" value="{$btn_abort}" onclick="javascript: window.location = '{$abort_location}'; return false;" />
+        </td>
+      </tr>
   </form>
 </div>
