@@ -33,7 +33,7 @@ if (defined('WB_PATH')) {
 // end include class.secure.php
 
 class dbCronjobConfig extends dbConnectLE {
-  
+
   const FIELD_ID = 'cfg_id';
   const FIELD_NAME = 'cfg_name';
   const FIELD_TYPE = 'cfg_type';
@@ -42,11 +42,11 @@ class dbCronjobConfig extends dbConnectLE {
   const FIELD_HINT = 'cfg_hint';
   const FIELD_STATUS = 'cfg_status';
   const FIELD_TIMESTAMP = 'cfg_timestamp';
-  
+
   const STATUS_ACTIVE = 'ACTIVE';
   const STATUS_DELETED = 'DELETED';
   const STATUS_LOCKED = 'LOCKED';
-  
+
   const TYPE_UNDEFINED = 'UNDEFINED';
   const TYPE_ARRAY = 'ARRAY';
   const TYPE_BOOLEAN = 'BOOLEAN';
@@ -57,20 +57,21 @@ class dbCronjobConfig extends dbConnectLE {
   const TYPE_PATH = 'PATH';
   const TYPE_STRING = 'STRING';
   const TYPE_URL = 'URL';
-  
+
   private $createTable = false;
   private $message = '';
-  private $lang = NULL;
-  
+
+  protected $lang = NULL;
+
   const CFG_CRONJOB_KEY = 'cfg_cronjob_key';
   const CFG_CRONJOB_ACTIVE = 'cfg_cronjob_active';
-  
+
   public $config_array = array(
-      array(        
-          'label' => 'LABEL_CFG_CRONJOB_KEY', 
-          'name' => self::CFG_CRONJOB_KEY, 
-          'type' => self::TYPE_STRING, 
-          'value' => '', 
+      array(
+          'label' => 'LABEL_CFG_CRONJOB_KEY',
+          'name' => self::CFG_CRONJOB_KEY,
+          'type' => self::TYPE_STRING,
+          'value' => '',
           'hint' => 'HINT_CFG_CRONJOB_KEY'
       ),
       array(
@@ -81,16 +82,16 @@ class dbCronjobConfig extends dbConnectLE {
           'hint' => 'HINT_CFG_CRONJOB_ACTIVE'
           )
   );
-  
+
   /**
    * Constructor
-   * 
-   * @param $createTable boolean         
+   *
+   * @param $createTable boolean
    */
   public function __construct($createTable = false) {
     global $I18n;
     $this->createTable = $createTable;
-    $this->lang = $I18n; 
+    $this->lang = $I18n;
     parent::__construct();
     $this->setTableName('mod_kit_cj_config');
     $this->addFieldDefinition(self::FIELD_ID, "INT(11) NOT NULL AUTO_INCREMENT", true);
@@ -119,37 +120,37 @@ class dbCronjobConfig extends dbConnectLE {
       $this->checkConfig();
     }
   } // __construct()
-  
+
   /**
    * Set a message to $this->message
-   * 
-   * @param $message string         
+   *
+   * @param $message string
    */
   public function setMessage($message) {
     $this->message = $message;
   } // setMessage()
-  
+
   /**
    * Get Message from $this->message;
-   * 
+   *
    * @return string $this->message
    */
   public function getMessage() {
     return $this->message;
   } // getMessage()
-  
+
   /**
    * Check if $this->message is empty
-   * 
+   *
    * @return boolean
    */
   public function isMessage() {
     return (bool) !empty($this->message);
   } // isMessage
-  
+
   /**
    * Aktualisiert den Wert $new_value des Datensatz $name
-   * 
+   *
    * @param $new_value string - Wert, der uebernommen werden soll
    * @param $id integer - ID des Datensatz, dessen Wert aktualisiert werden soll
    * @return boolean Ergebnis
@@ -163,32 +164,32 @@ class dbCronjobConfig extends dbConnectLE {
       return false;
     }
     if (count($config) < 1) {
-      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, 
-          $this->lang->translate('Error: There is no record for the configuration of <b>{{ name }}</b>!', 
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
+          $this->lang->translate('Error: There is no record for the configuration of <b>{{ name }}</b>!',
               array('name' => $name))));
       return false;
     }
     return $this->setValue($new_value, $config[0][self::FIELD_ID]);
   } // setValueByName()
-  
+
   /**
    * Haengt einen Slash an das Ende des uebergebenen Strings
    * wenn das letzte Zeichen noch kein Slash ist
-   * 
-   * @param $path string         
+   *
+   * @param $path string
    * @return string
    */
   public static function addSlash($path) {
     $path = substr($path, strlen($path) - 1, 1) == "/" ? $path : $path . "/";
     return $path;
   } // addSlash()
-  
+
   /**
    * Wandelt einen String in einen Float Wert um.
    * Geht davon aus, dass Dezimalzahlen mit ',' und nicht mit '.'
    * eingegeben wurden.
-   * 
-   * @param $string string         
+   *
+   * @param $string string
    * @return float
    */
   public static function str2float($string) {
@@ -197,11 +198,11 @@ class dbCronjobConfig extends dbConnectLE {
     $float = floatval($string);
     return $float;
   } // str2float()
-  
+
   /**
    * convert a string into a integer value
-   * 
-   * @param $string string         
+   *
+   * @param $string string
    * @return integer
    */
   public static function str2int($string) {
@@ -210,25 +211,25 @@ class dbCronjobConfig extends dbConnectLE {
     $int = intval($string);
     return $int;
   } // str2int()
-  
+
   /**
    * Ueberprueft die uebergebene E-Mail Adresse auf logische Gueltigkeit
-   * 
-   * @param $email string         
+   *
+   * @param $email string
    * @return boolean
    */
   public static function validateEMail($email) {
     if (preg_match("/^([0-9a-zA-Z]+[-._+&])*[0-9a-zA-Z]+@([-0-9a-zA-Z]+[.])+[a-zA-Z]{2,6}$/i", $email)) {
       return true;
-    } 
+    }
     else {
       return false;
     }
   } // validateEMail()
-  
+
   /**
    * Generate a password with the desired length
-   * 
+   *
    * @param integer $length
    * @return string
    */
@@ -245,14 +246,14 @@ class dbCronjobConfig extends dbConnectLE {
     }
     return $new_pass;
   } // generatePassword()
-  
-  
+
+
   /**
    * Aktualisiert den Wert $new_value des Datensatz $id
-   * 
+   *
    * @param $new_value string - Wert, der uebernommen werden soll
    * @param $id integer - ID des Datensatz, dessen Wert aktualisiert werden soll
-   * 
+   *
    * @return boolean Ergebnis
    */
   public function setValue($new_value, $id) {
@@ -265,8 +266,8 @@ class dbCronjobConfig extends dbConnectLE {
       return false;
     }
     if (sizeof($config) < 1) {
-      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, 
-          $this->lang->translate('Error: The record with the <b>ID {{ id }}</b> does not exists!', 
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
+          $this->lang->translate('Error: The record with the <b>ID {{ id }}</b> does not exists!',
               array('id' => $id))));
       return false;
     }
@@ -288,9 +289,9 @@ class dbCronjobConfig extends dbConnectLE {
       case self::TYPE_EMAIL :
         if ($this->validateEMail($new_value)) {
           $value = trim($new_value);
-        } 
+        }
         else {
-          $this->setMessage($this->lang->translate('<p>The email address <b>{{ email }}</b> is not valid!</p>', 
+          $this->setMessage($this->lang->translate('<p>The email address <b>{{ email }}</b> is not valid!</p>',
               array('email' => $new_value)));
           return false;
         }
@@ -330,11 +331,11 @@ class dbCronjobConfig extends dbConnectLE {
     }
     return true;
   } // setValue()
-  
+
   /**
    * Gibt den angeforderten Wert zurueck
-   * 
-   * @param $name - Bezeichner 
+   *
+   * @param $name - Bezeichner
    * @return WERT entsprechend des TYP
    */
   public function getValue($name) {
@@ -347,8 +348,8 @@ class dbCronjobConfig extends dbConnectLE {
       return false;
     }
     if (sizeof($config) < 1) {
-      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, 
-          $this->lang->translate('Error: There is no record for the configuration of <b>{{ name }}</b>!', 
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
+          $this->lang->translate('Error: There is no record for the configuration of <b>{{ name }}</b>!',
               array('name' => $name))));
       return false;
     }
@@ -382,10 +383,10 @@ class dbCronjobConfig extends dbConnectLE {
     endswitch;
     return $result;
   } // getValue()
-  
+
   /**
    * Check if the configuration enty exists and create the entry if needed
-   * 
+   *
    * @return boolean
    */
   public function checkConfig() {
@@ -421,33 +422,29 @@ class dbCronjobConfig extends dbConnectLE {
 } // class dbKITcronjobConfig
 
 class dbCronjob extends dbConnectLE {
-  
+
   const FIELD_ID = 'cj_id';
   const FIELD_NAME = 'cj_name';
   const FIELD_DESCRIPTION = 'cj_description';
   const FIELD_MINUTE = 'cj_minute';
   const FIELD_HOUR = 'cj_hour';
-  const FIELD_DAY = 'cj_day';
+  const FIELD_DAY_OF_MONTH = 'cj_day_of_month';
+  const FIELD_DAY_OF_WEEK = 'cj_day_of_week';
   const FIELD_MONTH = 'cj_month';
-  const FIELD_YEAR = 'cj_year';
-  const FIELD_PERIODIC = 'cj_periodic';
   const FIELD_COMMAND = 'cj_command';
   const FIELD_LAST_STATUS = 'cj_last_status';
   const FIELD_LAST_RUN = 'cj_last_run';
   const FIELD_NEXT_RUN = 'cj_next_run';
   const FIELD_STATUS = 'cj_status';
   const FIELD_TIMESTAMP = 'cj_timestamp';
-  
+
   const STATUS_ACTIVE = 'ACTIVE';
   const STATUS_LOCKED = 'LOCKED';
   const STATUS_DELETED = 'DELETED';
-  
-  const PERIODIC_YES = 'YES';
-  const PERIODIC_NO = 'NO';
-  
+
   private $createTable = false;
-  private $lang = NULL;
-  
+  protected $lang = NULL;
+
   /**
    * Constructor
    *
@@ -455,21 +452,20 @@ class dbCronjob extends dbConnectLE {
    */
   public function __construct($createTable = false) {
     global $I18n;
-    
+
     $this->createTable = $createTable;
     $this->lang = $I18n;
-    
+
     parent::__construct();
     $this->setTableName('mod_kit_cj_cronjob');
     $this->addFieldDefinition(self::FIELD_ID, "INT(11) NOT NULL AUTO_INCREMENT", true);
     $this->addFieldDefinition(self::FIELD_NAME, "VARCHAR(64) NOT NULL DEFAULT ''");
     $this->addFieldDefinition(self::FIELD_DESCRIPTION, "TEXT");
-    $this->addFieldDefinition(self::FIELD_MINUTE, "ENUM('*','0','5','10','15','20','25','30','35','40','45','50','55') DEFAULT '*'");
-    $this->addFieldDefinition(self::FIELD_HOUR, "ENUM('*','0','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23') DEFAULT '*'");
-    $this->addFieldDefinition(self::FIELD_DAY, "ENUM('*','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31') DEFAULT '*'");
-    $this->addFieldDefinition(self::FIELD_MONTH, "ENUM('*','1','2','3','4','5','6','7','8','9','10','11','12') DEFAULT '*'");
-    $this->addFieldDefinition(self::FIELD_YEAR, "ENUM('*','2012','2013','2014','2015','2016','2017','2018','2019','2020','2021','2022') DEFAULT '*'");
-    $this->addFieldDefinition(self::FIELD_PERIODIC, "ENUM('YES', 'NO') DEFAULT 'YES'");
+    $this->addFieldDefinition(self::FIELD_MINUTE, "ENUM('0','5','10','15','20','25','30','35','40','45','50','55') DEFAULT '0'");
+    $this->addFieldDefinition(self::FIELD_HOUR, "ENUM('0','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23') DEFAULT '0'");
+    $this->addFieldDefinition(self::FIELD_DAY_OF_MONTH, "ENUM('1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31') DEFAULT '1'");
+    $this->addFieldDefinition(self::FIELD_DAY_OF_WEEK, "ENUM('SUN','MON','TUE','WED','THU','FRI','SAT') DEFAULT 'SUN'");
+    $this->addFieldDefinition(self::FIELD_MONTH, "ENUM('JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC') DEFAULT 'JAN'");
     $this->addFieldDefinition(self::FIELD_COMMAND, "TEXT");
     $this->addFieldDefinition(self::FIELD_LAST_RUN, "DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00'");
     $this->addFieldDefinition(self::FIELD_LAST_STATUS, "TEXT");
@@ -492,7 +488,7 @@ class dbCronjob extends dbConnectLE {
   /**
    * This function reads entries from type definition of ENUM() fields and
    * return an array with the values of the ENUM() string.
-   * 
+   *
    * @param string $field
    * @param reference string $entries
    * @return boolean - true on success
@@ -505,19 +501,19 @@ class dbCronjob extends dbConnectLE {
       return false;
     }
     if (!isset($result[0]['Type'])) {
-      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, 
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
           $this->lang->translate('Error: The field <b>{{ field }}</b> does not exists!', array('field' => $field))));
       return false;
     }
     preg_match('#enum\((.*?)\)#i', $result[0]['Type'], $enum);
     if (!isset($enum[1])) {
-      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, 
-          $this->lang->translate('Error: The field <b>{{ field }}</b> seems not of type <b>ENUM()</b>, can\'t read any values!', 
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
+          $this->lang->translate('Error: The field <b>{{ field }}</b> seems not of type <b>ENUM()</b>, can\'t read any values!',
               array('field' => $field))));
       return false;
     }
     $entries = explode(",", str_replace("'", "", $enum[1]));
     return true;
   } // enumColumn2array()
-  
+
 } // class CronjobList

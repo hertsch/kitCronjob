@@ -14,58 +14,121 @@
  *
  * Use {dump()} to get a list of all in this template available variables!
  *}
-<div id="idea_config">
-  <form name="{$form_name}" action="{$form_action}" method="post">
-    <input type="hidden" name="{$action_name}" value="{$action_value}" />
-    <h2>{$head}</h2>
+<div id="cronjob_edit">
+  <form name="{$form_name}" action="{$page_link}" method="post">
+    <input type="hidden" name="{$action.name}" value="{$action.value}" />
+    <h2>{translate('Cronjobs')}</h2>
     <div class="{if $is_message == 1}message{else}intro{/if}">{$intro}</div>
-    <table width="100%">
-      <colgroup>
-        <col width="200" /> 
-        <col width="*" />
-        <col width="450" />
-      </colgroup>
-      {foreach $fields field}
-      <tr>
-        <td>{$field.label}</td>
-        {if $field.name == 'cj_name' || $field.name == 'cj_command'}
-        <td><input type="text" name="{$field.name}" value="{$field.value}" /></td>
-        {elseif $field.name == 'cj_description'}
-        <td><textarea name="{$field.name}">{$field.value}</textarea></td>
-        {elseif $field.name == 'cj_minute' || $field.name == 'cj_hour' || $field.name == 'cj_day' || 
-          $field.name == 'cj_month' || $field.name == 'cj_year'}
-        <td>
-          <select name="{$field.name}[]" size="3" multiple="multiple">
-            {foreach $field.options option}
-            <option value="{$option}"{foreach $field.value value}{if $value == $option}selected="selected"{/if}{/foreach}>{$option}</option>
-            {/foreach}
-          </select>
-        </td>
-        {elseif $field.name == 'cj_periodic' || $field.name == 'cj_status'}
-        <td>
-          <select name="{$field.name}" size="1">
-            {foreach $field.options option}
-            <option value="{$option}"{if $option == $field.value} selected="selected"{/if}>{$option}</option>
-            {/foreach}
-          </select>
-        </td>
-        {elseif $field.name == 'cj_last_run' || $field.name == 'cj_next_run' || $field.name == 'cj_timestamp'}
-        <td>{$field.formatted}</td>
-        {elseif $field.name == 'cj_last_status'}
-        <td>{$field.value}</td>
+    
+    <div class="cj_label">{translate('LABEL_NAME')}</div>
+    <div class="cj_text"><input type="text" name="{$fields.cronjob_name.name}" value="{$fields.cronjob_name.value}" /></div> 
+    <div class="cj_hint">{translate('HINT_NAME')}</div>
+    <div class="cj_clear"></div>
+    
+    <div class="cj_label">{translate('LABEL_DESCRIPTION')}</div>
+    <div class="cj_textarea"><textarea name="{$fields.cronjob_description.name}">{$fields.cronjob_description.value}</textarea></div> 
+    <div class="cj_hint">{translate('HINT_DESCRIPTION')}</div>
+    <div class="cj_clear"></div>
+    
+    {if $fields.cronjob_id.value > 0}
+      <div class="cj_label">{translate('LABEL_STATUS')}</div>
+      <div class="cj_select">
+        {if $fields.cronjob_status.value == 'ACTIVE'}
+          <input class="cj_btn_status_active_active" type="button" value="{translate('Active')}" disabled="disabled" />
         {else}
-        <td>--> undefined field name: {$field.name}!</td>
+          <input class="cj_btn_status_active_inactive" type="button" value="{translate('Active')}" onclick="javascript:window.location='{$link.status}ACTIVE';return false;" />
         {/if}
-        <td>{$field.hint}</td>
-      </tr>
-      {/foreach}
-      <tr><td colspan="3">&nbsp;</td></tr>
-      <tr>
-        <td>&nbsp;</td>
-        <td colspan="2">
-          <input type="submit" value="{$btn_ok}" />&nbsp;
-          <input type="button" value="{$btn_abort}" onclick="javascript: window.location = '{$abort_location}'; return false;" />
-        </td>
-      </tr>
+        {if $fields.cronjob_status.value == 'LOCKED'}
+          <input class="cj_btn_status_locked_active" type="button" value="{translate('Locked')}" disabled="disabled" />
+        {else}
+          <input class="cj_btn_status_locked_inactive" type="button" value="{translate('Locked')}" onclick="javascript:window.location='{$link.status}LOCKED';return false;" />
+        {/if}
+        {if $fields.cronjob_status.value == 'DELETED'}
+          <input class="cj_btn_status_deleted_active" type="button" value="{translate('Deleted')}" disabled="disabled" />
+        {else}
+          <input class="cj_btn_status_deleted_inactive" type="button" value="{translate('Deleted')}" onclick="javascript:window.location='{$link.status}DELETED';return false;" />
+        {/if}
+      </div>
+      <div class="cj_hint">{translate('HINT_STATUS')}</div>
+      <div class="cj_clear"></div>
+    {/if}
+    
+    <div class="cj_label">&nbsp;</div>
+    <div class="cj_2_digit_header">{translate('LABEL_HOURS')}</div>
+    <div class="cj_2_digit_header">{translate('LABEL_MINUTES')}</div>
+    <div class="cj_2_digit_header">{translate('LABEL_DAYS_OF_MONTH')}</div>
+    <div class="cj_day_digit_header">{translate('LABEL_DAYS_OF_WEEK')}</div>
+    <div class="cj_month_digit_header">{translate('LABEL_MONTHS')}</div>
+    <div class="cj_hint">&nbsp;</div>
+    <div class="cj_clear"></div>
+    
+    <div class="cj_label">{translate('LABEL_CRONJOB')}</div>
+    <div class="cj_2_digit">
+      <select name="{$fields.cronjob_hour.name}[]" size="12" multiple="multiple">
+        {foreach $fields.cronjob_hour.options option}
+          <option value="{$option}"{foreach $fields.cronjob_hour.value value}{if $value == $option}selected="selected"{/if}{/foreach}>{$option}</option>
+        {/foreach}
+      </select>
+    </div>
+    <div class="cj_2_digit">
+      <select name="{$fields.cronjob_minute.name}[]" size="12" multiple="multiple">
+        {foreach $fields.cronjob_minute.options option}
+          <option value="{$option}"{foreach $fields.cronjob_minute.value value}{if $value == $option}selected="selected"{/if}{/foreach}>{$option}</option>
+        {/foreach}
+      </select>
+    </div>
+    <div class="cj_2_digit">
+      <select name="{$fields.cronjob_day_of_month.name}[]" size="12" multiple="multiple">
+        {foreach $fields.cronjob_day_of_month.options option}
+          <option value="{$option}"{foreach $fields.cronjob_day_of_month.value value}{if $value == $option}selected="selected"{/if}{/foreach}>{$option}</option>
+        {/foreach}
+      </select>
+    </div>
+    <div class="cj_day_digit">
+      <select name="{$fields.cronjob_day_of_week.name}[]" size="12" multiple="multiple">
+        {foreach $fields.cronjob_day_of_week.options option}
+          <option value="{$option}"{foreach $fields.cronjob_day_of_week.value value}{if $value == $option}selected="selected"{/if}{/foreach}>{translate($option)}</option>
+        {/foreach}
+      </select>
+    </div>
+    <div class="cj_month_digit">
+      <select name="{$fields.cronjob_month.name}[]" size="12" multiple="multiple">
+        {foreach $fields.cronjob_month.options option}
+          <option value="{$option}"{foreach $fields.cronjob_month.value value}{if $value == $option}selected="selected"{/if}{/foreach}>{translate($option)}</option>
+        {/foreach}
+      </select>
+    </div>
+    <div class="cj_hint">{translate('HINT_CRONJOB')}</div>
+    <div class="cj_clear"></div>
+    
+    <div class="cj_label">{translate('LABEL_COMMAND')}</div>
+    <div class="cj_input">
+      <input type="text" name="{$fields.cronjob_command.name}" value="{$fields.cronjob_command.value}" />
+    </div>
+    <div class="cj_hint">{translate('HINT_COMMAND')}</div>
+    <div class="cj_clear"></div>
+    
+    {if $fields.cronjob_id.value > 0}
+      <div class="cj_label">{translate('LABEL_LAST_RUN')}</div>
+      <div class="cj_info" colspan="5">{$fields.cronjob_last_run.formatted}</div>
+      <div class="cj_hint">{translate('HINT_LAST_RUN')}</div>
+      <div class="cj_clear"></div>
+
+      <div class="cj_label">{translate('LABEL_LAST_STATUS')}</div>
+      <div class="cj_info" colspan="5">{$fields.cronjob_last_status.value}</div>
+      <div class="cj_hint">{translate('HINT_LAST_STATUS')}</div>
+      <div class="cj_clear"></div>
+
+      <div class="cj_label">{translate('LABEL_NEXT_RUN')}</div>
+      <div class="cj_info" colspan="5">{$fields.cronjob_next_run.formatted}</div>
+      <div class="cj_hint">{translate('HINT_NEXT_RUN')}</div>
+      <div class="cj_clear"></div>
+    {/if}
+
+    <div class="cj_label">&nbsp;</div>
+    <div class="cj_submit">
+      <input type="submit" value="{translate('OK')}" />&nbsp;
+      <input type="button" value="{translate('Abort')}" onclick="javascript: window.location = '{$page_link}'; return false;" />
+    </div>
   </form>
 </div>

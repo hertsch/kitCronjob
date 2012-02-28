@@ -14,7 +14,7 @@
  *
  * Use {dump()} to get a list of all in this template available variables!
  *}
-<div id="idea_config">
+<div id="cj_config">
   <form name="{$form_name}" action="{$form_action}" method="post">
     <input type="hidden" name="{$action_name}" value="{$action_value}" />
     <input type="hidden" name="{$items_name}" value="{$items_value}" />
@@ -33,20 +33,20 @@
       </tr>
       {foreach $items item}
       <tr>
-        <td class="idea_cfg_identifier">{$item.identifier}</td>
+        <td class="cj_cfg_identifier">{translate($item.identifier)}</td>
         {if $item.type == 'LIST'}
-        <td class="idea_cfg_value"><textarea name="{$item.name}">{$item.value}</textarea></td>
+        <td class="cj_cfg_value"><textarea name="{$item.name}">{$item.value}</textarea></td>
         {else}
-        <td class="idea_cfg_value"><input type="text" name="{$item.name}" value="{$item.value}" /></td>
+        <td class="cj_cfg_value"><input type="text" name="{$item.name}" value="{$item.value}" /></td>
         {/if}
-        <td class="idea_cfg_description">{$item.description}</td>
+        <td class="cj_cfg_description">{translate($item.description)}</td>
       </tr>
       {/foreach}
       <tr><td colspan="3">&nbsp;</td></tr>
       <tr>
         <td colspan="3">
-          <input type="submit" value="{$btn_ok}" />&nbsp;
-          <input type="button" value="{$btn_abort}" onclick="javascript: window.location = '{$abort_location}'; return false;" />
+          <input type="submit" value="{translate('OK')}" />&nbsp;
+          <input type="button" value="{translate('Abort')}" onclick="javascript: window.location = '{$abort_location}'; return false;" />
         </td>
       </tr>
     </table>

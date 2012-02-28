@@ -10,23 +10,35 @@
  * FOR VERSION- AND RELEASE NOTES PLEASE LOOK AT INFO.TXT!
  */
 
+ /*
 td
 {
   font-size: 8pt;
   vertical-align: top;
 }
-td.label {
+td.cj_label {
   font-weight: bold;
 }
-
+td.cj_hint {
+  font-style: italic;
+}
+td.cj_digit_header {
+  text-align: right;
+  padding: 0 20px 0 0;
+}
+td.cj_2_digit select,
+td.cj_day_digit select,
+td.cj_month_digit select {
+  text-align: right;
+}
 tr.flip {
   background-color: #FFFFCC;
 }
 tr.flop {
   background-color: transparent;
 }
-input
-{
+ */
+input {
   width: 98%;
   background-color: transparent;
 }
@@ -177,4 +189,129 @@ textarea
   margin: 10px 0 5px 0;
   text-align: right;
   font-size: 8pt;
+}
+
+/**
+  Cronjob Edit Dialog
+**/
+#config_edit {
+  clear: both;
+  width: 850px;
+  height: auto;
+  font-size: 9pt;
+}
+.cj_clear {
+  clear: both;
+}
+.cj_label {
+  float: left;
+  width: 200px;
+  font-weight: bold;
+}
+.cj_textarea,
+.cj_text {
+  float: left;
+  width: 450px;
+}
+.cj_2_digit,
+.cj_2_digit_header {
+  float: left;
+  width: 80px;
+}
+.cj_day_digit,
+.cj_day_digit_header {
+  float: left;
+  width: 100px;
+}
+.cj_month_digit,
+.cj_month_digit_header {
+  float: left;
+  width: 110px;
+}
+.cj_2_digit_header,
+.cj_day_digit_header,
+.cj_month_digit_header {
+  text-align: center;
+  margin: 0;
+}
+.cj_2_digit select,
+.cj_day_digit select,
+.cj_month_digit select {
+  text-align: right;
+}
+.cj_hint {
+  float: left;
+  width: 200px;
+  padding: 0 0 0 20px;
+  font-size: 7pt;
+  font-style: italic;
+}
+
+/**
+  Status buttons
+**/  
+input.cj_btn_status_active_active,
+input.cj_btn_status_active_inactive,
+input.cj_btn_status_locked_active,
+input.cj_btn_status_locked_inactive,
+input.cj_btn_status_deleted_active,
+input.cj_btn_status_deleted_inactive
+{
+  width: 90px;
+  height: 22px;
+  border: 2px outset;
+  background-image: none;
+  background-repeat: no-repeat;
+  background-position: top left;
+  margin: 0;
+  padding: 0 0 3px 18px;
+  text-align: left;
+  font-size: 10px;
+}
+input.cj_btn_status_active_active {
+  color: inherit;
+  border: 2px inset;
+  background-image: url(images/icons/active/16/ok.png);
+}
+input.cj_btn_status_active_inactive {
+  color: #666;
+  cursor: default;
+  background-image: url(images/icons/inactive/16/ok.png);
+}
+input.cj_btn_status_active_inactive:hover {
+  color: inherit;
+  cursor: pointer;
+  background-image: url(images/icons/active/16/ok.png);  
+}
+
+input.cj_btn_status_locked_active {
+  color: inherit;
+  border: 2px inset;
+  background-image: url(images/icons/active/16/lock.png);
+}
+input.cj_btn_status_locked_inactive {
+  color: #666;
+  cursor: default;
+  background-image: url(images/icons/inactive/16/lock.png);
+}
+input.cj_btn_status_locked_inactive:hover {
+  color: inherit;
+  cursor: pointer;
+  background-image: url(images/icons/active/16/lock.png);  
+}
+
+input.cj_btn_status_deleted_active {
+  color: inherit;
+  border: 2px inset;
+  background-image: url(images/icons/active/16/trash.png);
+}
+input.cj_btn_status_deleted_inactive {
+  color: #666;
+  cursor: default;
+  background-image: url(images/icons/inactive/16/trash.png);
+}
+input.cj_btn_status_deleted_inactive:hover {
+  color: inherit;
+  cursor: pointer;
+  background-image: url(images/icons/active/16/trash.png);  
 }
