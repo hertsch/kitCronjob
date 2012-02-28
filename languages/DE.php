@@ -43,7 +43,7 @@ $LANG = array(
     'About'
       => '?',
     'Active'
-      => 'Aktiv',
+      => 'Aktiv', 
 		'ACTIVE'
 		  => 'Aktiv',
 		'APR'
