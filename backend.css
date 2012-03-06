@@ -194,6 +194,11 @@ textarea
 /**
   Cronjob Edit Dialog
 **/
+kbd {
+  font-family: Courier, Monospace;
+  font-weight: bold;
+  font-style: normal;
+}
 #config_edit {
   clear: both;
   width: 850px;
@@ -246,72 +251,47 @@ textarea
   font-size: 7pt;
   font-style: italic;
 }
-
-/**
-  Status buttons
-**/  
-input.cj_btn_status_active_active,
-input.cj_btn_status_active_inactive,
-input.cj_btn_status_locked_active,
-input.cj_btn_status_locked_inactive,
-input.cj_btn_status_deleted_active,
-input.cj_btn_status_deleted_inactive
-{
-  width: 90px;
-  height: 22px;
-  border: 2px outset;
-  background-image: none;
-  background-repeat: no-repeat;
-  background-position: top left;
+.cj_input {
+  float: left;
+  width: 450px;
+}
+#cj_config {
+  width: 100%;
+}
+.cjc_header_name {
+  float: left;
+  width: 20%;
+  font-weight: bold;
+}
+.cjc_header_value {
+  float: left;
+  width: 50%;
+  font-weight: bold;
+}
+.cjc_header_description {
+  float: left;
+  width: 30%;
+  font-weight: bold;
+}
+.cjc_clear {
+  clear: both;
+  height: 5px;
   margin: 0;
-  padding: 0 0 3px 18px;
-  text-align: left;
-  font-size: 10px;
+  padding: 0;
 }
-input.cj_btn_status_active_active {
-  color: inherit;
-  border: 2px inset;
-  background-image: url(images/icons/active/16/ok.png);
+.cjc_value_name {
+  float: left;
+  width: 20%;
 }
-input.cj_btn_status_active_inactive {
-  color: #666;
-  cursor: default;
-  background-image: url(images/icons/inactive/16/ok.png);
+.cjc_value_value {
+  float: left;
+  width: 50%;
 }
-input.cj_btn_status_active_inactive:hover {
-  color: inherit;
-  cursor: pointer;
-  background-image: url(images/icons/active/16/ok.png);  
+.cjc_value_description {
+  float: left;
+  width: 30%;
+  font-size: smaller;
 }
-
-input.cj_btn_status_locked_active {
-  color: inherit;
-  border: 2px inset;
-  background-image: url(images/icons/active/16/lock.png);
-}
-input.cj_btn_status_locked_inactive {
-  color: #666;
-  cursor: default;
-  background-image: url(images/icons/inactive/16/lock.png);
-}
-input.cj_btn_status_locked_inactive:hover {
-  color: inherit;
-  cursor: pointer;
-  background-image: url(images/icons/active/16/lock.png);  
-}
-
-input.cj_btn_status_deleted_active {
-  color: inherit;
-  border: 2px inset;
-  background-image: url(images/icons/active/16/trash.png);
-}
-input.cj_btn_status_deleted_inactive {
-  color: #666;
-  cursor: default;
-  background-image: url(images/icons/inactive/16/trash.png);
-}
-input.cj_btn_status_deleted_inactive:hover {
-  color: inherit;
-  cursor: pointer;
-  background-image: url(images/icons/active/16/trash.png);  
+.cjc_submit {
+  padding: 10px 0 0 20%;
 }

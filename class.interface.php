@@ -54,6 +54,11 @@ class cronjobInterface {
   const CRONJOB_NEXT_RUN = 'cronjob_next_run';
   const CRONJOB_STATUS = 'cronjob_status';
   const CRONJOB_TIMESTAMP = 'cronjob_timestamp';
+  
+  const CFG_CRONJOB_KEY = dbCronjobConfig::CFG_CRONJOB_KEY;
+  const CFG_CRONJOB_ACTIVE = dbCronjobConfig::CFG_CRONJOB_ACTIVE;
+  const CFG_USE_SSL = dbCronjobConfig::CFG_USE_SSL;
+  const CFG_CRONJOB_NAME_MINIMUM_LENGTH = dbCronjobConfig::CFG_CRONJOB_NAME_MINIMUM_LENGTH;
 
   private $field_array = array(
       self::CRONJOB_ID => -1,
@@ -200,12 +205,52 @@ class cronjobInterface {
    * @return boolean
    */
   public function checkCronjobRequests(&$cronjob) {
+  	$is_array = array(self::CRONJOB_DAY_OF_MONTH, self::CRONJOB_DAY_OF_WEEK, self::CRONJOB_HOUR,
+  			self::CRONJOB_MINUTE, self::CRONJOB_MONTH);
     foreach ($this->field_array as $key => $value) {
-      if (isset($_REQUEST[$key])) $cronjob[$key] = $_REQUEST[$key];
+      if (isset($_REQUEST[$key])) {
+      	$cronjob[$key] = (in_array($key, $is_array)) ? implode($_REQUEST[$key]) : $_REQUEST[$key];
+      }
     }
     return true;
   } // checkCronjobRequests()
 
+  /**
+   * Check if a cronjob name is unique or not.
+   * If $ignor_ID is specified the cronjob with this ID will be ignored.
+   * 
+   * @param string $name
+   * @param integer $ignore_ID
+   * @return boolean result
+   */
+  public function checkCronjobNameIsUnique($name, $ignore_ID = NULL) {
+  	global $dbCronjob;
+  	
+  	$result = array();
+  	if ($ignore_ID == NULL) {
+  		$SQL = sprintf("SELECT `%s` FROM %s WHERE `%s`='%s'",
+  				dbCronjob::FIELD_ID, 
+  				$dbCronjob->getTableName(),
+  				dbCronjob::FIELD_NAME,
+  				$name);
+  	}
+  	else {
+  		$SQL = sprintf("SELECT `%s` FROM %s WHERE `%s`='%s' AND `%s`!='%s'",
+  				dbCronjob::FIELD_ID,
+  				$dbCronjob->getTableName(),
+  				dbCronjob::FIELD_NAME,
+  				$name,
+  				dbCronjob::FIELD_ID,
+  				$ignore_ID);
+  	} 
+  	if (!$dbCronjob->sqlExec($SQL, $result)) {
+  		$this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbCronjob->getError()));
+  		return false;
+  	}
+  	if (count($result) > 0) return false;
+  	return true;  	 
+  } // checkCronjobNameIsUnique()
+  
   /**
    * This function reads entries from type definition of ENUM() fields and
    * return an array with the values of the ENUM() string.
@@ -223,5 +268,29 @@ class cronjobInterface {
     }
     return true;
   } // enumColumn2array()
+  
+  /**
+   * Get the desired configuration $key and returns the value in the correct
+   * data format.
+   * 
+   * @param string $key
+   * @return mixed configuration value
+   */
+  public function getCronjobConfigValue($key) {
+  	global $dbCronjobConfig;
+  	return $dbCronjobConfig->getValue($key);
+  } // getCronjobConfigValue()
+  
+  /**
+   * Set a new value $value for the desired configuration $key
+   * 
+   * @param string $key
+   * @param string $value
+   * @return boolean result
+   */
+  public function setCronjobConfigValue($key, $value) {
+  	global $dbCronjobConfig;
+  	return $dbCronjobConfig->setValueByName($value, $key);
+  } // setCronjobConfigValue()
 
 } // class CronjobInterface

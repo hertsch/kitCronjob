@@ -48,13 +48,23 @@ $LANG = array(
 		  => 'Aktiv',
 		'APR'
 		  => 'April',
+		'At minimum please set a value for hour, minute, day, weekday and month for definition of the cronjob!'
+			=> 'Bitte setzen Sie mindestens je einen Wert für die Stunde, Minute, Tag, Wochentag und Monat für die Definition des Cronjobs!',
 		'AUG'
 		  => 'August',
+		'Command'
+			=> 'Befehl',
     'Cronjob'
       => 'Cronjob',
+		'Cronjob preselect'
+			=> 'Cronjob Vorauswahl',
+		'Days'
+      => 'Tage',
 		'DEC'
 		  => 'Dezember',
-    'Deleted'
+    'Define cronjob'
+		  => 'Cronjob definieren',
+		'Deleted'
       => 'Gelöscht',
 		'DELETED'
 		  => 'Gelöscht',
@@ -86,10 +96,16 @@ $LANG = array(
       => '',
 		'HINT_CFG_CRONJOB_KEY'
       => 'Um zu verhindern, dass Cronjobs durch einen einfachen Aufruf der cronjob.php ausgeführt werden, muss der angegebene Schlüssel als Parameter übergeben werden. Der Aufruf der Datei lautet cronjob.php?<b>key=SCHLÜSSEL</b>.',
+		'HINT_CFG_CRONJOB_NAME_MINIMUM_LENGTH'
+			=> 'Die minimale Länge des Cronjob Bezeichners.',
+		'HINT_CFG_USE_SSL'
+			=> 'Legen Sie fest, ob kitCronjob erforderliche Verbindungen über das Secure Socket Layer Protokoll (SSL) aufzubauen soll (1=JA, 0=Nein).',
     'HINT_CRONJOB'
-		  => 'Legen Sie den oder die gewünschten Ausführungstermin(e) für diesen Cronjob fest. Mit einem <b>*</b> wählen Sie alle Einträge der jeweiligen Spalte',
+		  => 'Legen Sie den oder die gewünschten Ausführungstermin(e) für diesen Cronjob fest. Wählen Sie aus jeder Spalte mindestens einen Wert aus. Um mehrere Werte in einer Spalte auszuwählen halten Sie die <kbd>STRG</kbd> Taste gedrückt und klicken die gewünschten Werte an.',
     'HINT_CRONJOB_ACTIVE'
       => 'Legen Sie fest, ob kitCronjob ausgeführt wird oder nicht. 1=Aktiv, 0=AUS',
+		'HINT_CRONJOB_SAMPLES'
+			=> 'Vordefinierte Cronjobs zur bequemen Auswahl oder als Beispiel für eigene Einstellungen.',
     'HINT_COMMAND'
       => '',
     'HINT_DAY'
@@ -124,38 +140,14 @@ $LANG = array(
 		  => 'Juli',
 		'JUN'
 		  => 'Juni',
-    'LABEL_CFG_CRONJOB_ACTIVE'
-		  => 'Cronjob ausführen',
+		'LABEL_CFG_CRONJOB_ACTIVE'
+			=> 'Cronjob ausführen',
 		'LABEL_CFG_CRONJOB_KEY'
-      => 'Cronjob Schlüssel',
-    'LABEL_COMMAND'
-      => 'Befehl',
-    'LABEL_CRONJOB'
-		  => 'Cronjob festlegen',
-		'LABEL_DAYS_OF_MONTH'
-      => 'Tage',
-		'LABEL_DAYS_OF_WEEK'
-		  => 'Wochentage',
-    'LABEL_DESCRIPTION'
-      => 'Beschreibung',
-    'LABEL_HOURS'
-      => 'Stunden',
-    'LABEL_LAST_RUN'
-      => 'Letzte Ausführung',
-    'LABEL_LAST_STATUS'
-      => 'Letzter Status',
-    'LABEL_MINUTES'
-      => 'Minuten',
-    'LABEL_MONTHS'
-      => 'Monate',
-    'LABEL_NAME'
-      => 'Bezeichner',
-    'LABEL_NEXT_RUN'
-      => 'Nächste Ausführung',
-    'LABEL_STATUS'
-      => 'Status',
-    'LABEL_TIMESTAMP'
-      => 'Zeitstempel',
+			=> 'Cronjob Schlüssel',
+		'LABEL_CFG_CRONJOB_NAME_MINIMUM_LENGTH'
+			=> 'Bezeichner, min. Länge',
+		'LABEL_CFG_USE_SSL'
+			=> 'SSL verwenden',
     'Locked'
       => 'Gesperrt',
 		'LOCKED'
@@ -166,6 +158,8 @@ $LANG = array(
 		  => 'Mai',
 		'MON'
 		  => 'Montag',
+		'Month'
+			=> 'Monat',
     'Name'
       => 'Bezeichner',
 		'NOV'
@@ -176,6 +170,10 @@ $LANG = array(
       => 'OK',
     'Please create a new cronjob!'
       => 'Erstellen Sie einen neuen Cronjob!',
+		'Please define a unique name for the cronjob!'
+			=> 'Bitte legen Sie einen eindeutigen Bezeichner für den Cronjob fest!',
+		'Please define the command to execute by the cronjob!'
+			=> 'Bitte legen Sie den Befehl fest, der von dem Cronjob ausgeführt werden soll!',
 		'SAT'
 		  => 'Samstag',
 		'SEP'
@@ -184,6 +182,8 @@ $LANG = array(
       => 'Einstellungen',
 		'SUN'
 		  => 'Sonntag',
+		'The cronjob name must be at minimum {{ length }} characters long.'
+			=> 'Der Cronjob Bezeichner muß mindestens {{ length }} Zeichen lang sein!',
     '<p>The email address <b>{{ email }}</b> is not valid!</p>'
       => '<p>Die E-Mail Adresse <b>{{ email }}</b> ist nicht gültig!</p>',
     '<p>The setting for <b>{{ name }}</b> was changed.</p>'
@@ -196,5 +196,7 @@ $LANG = array(
       => 'Wert',
 		'WED'
 		  => 'Mittwoch',
-
+		'Weekdays'
+			=> 'Wochentage',
+		
 );

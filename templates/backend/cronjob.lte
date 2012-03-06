@@ -1,0 +1,151 @@
+{*
+ * kitCronjob
+ *
+ * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @link http://phpmanufaktur.de
+ * @copyright 2012
+ * @license http://www.gnu.org/licenses/gpl.html GNU Public License (GPL)
+ * @version $Id$
+ *
+ * Please consult the Dwoo Documentation & WIKI to get further informations 
+ * and hints for the usage of the Dwoo template engine.
+ *
+ * @link http://wiki.dwoo.org/
+ *
+ * Use {dump()} to get a list of all in this template available variables!
+ *}
+<div id="cronjob_edit">
+  <form name="{$form.name}" action="{$form.action}" method="post">
+    <input type="hidden" name="{$action.name}" value="{$action.value}" />
+    <input type="hidden" name="{$fields.cronjob_id.name}" value="{$fields.cronjob_id.value}" />
+    <h2>{translate('Cronjobs')}</h2>
+    <div class="{if $is_message == 1}message{else}intro{/if}">{$intro}</div>
+    
+    <div class="cj_label"><label for="{$fields.cronjob_name.name}">{translate('Name')}</label></div>
+    <div class="cj_text"><input type="text" name="{$fields.cronjob_name.name}" value="{$fields.cronjob_name.value}" /></div> 
+    <div class="cj_hint">{translate('HINT_NAME')}</div>
+    <div class="cj_clear"></div>
+    
+    <div class="cj_label"><label for="{$fields.cronjob_description.name}">{translate('Description')}</label></div>
+    <div class="cj_textarea"><textarea name="{$fields.cronjob_description.name}">{$fields.cronjob_description.value}</textarea></div> 
+    <div class="cj_hint">{translate('HINT_DESCRIPTION')}</div>
+    <div class="cj_clear"></div>
+    
+    {if $fields.cronjob_id.value > 0}
+      <div class="cj_label"><label for="{$field.cronjob_status.name}">{translate('Status')}</label></div>
+      <div class="cj_select">
+        {if $fields.cronjob_status.value == 'ACTIVE'}
+        <input type="radio" name="{$fields.cronjob_status.name}" value="ACTIVE" checked="checked" />&nbsp;<img src="{$img_url}/icons/active/16/ok.png" alt="" />&nbsp;
+        {else}
+        <input type="radio" name="{$fields.cronjob_status.name}" value="ACTIVE" />&nbsp;<img src="{$img_url}/icons/inactive/16/ok.png" alt="" />&nbsp;
+        {/if}
+        {translate('Active')}
+        {if $fields.cronjob_status.value == 'LOCKED'}
+        <input type="radio" name="{$fields.cronjob_status.name}" value="LOCKED" checked="checked" />&nbsp;<img src="{$img_url}/icons/active/16/lock.png" alt="" />&nbsp;
+        {else}
+        <input type="radio" name="{$fields.cronjob_status.name}" value="LOCKED" />&nbsp;<img src="{$img_url}/icons/inactive/16/lock.png" alt="" />&nbsp;
+        {/if}
+        {translate('Locked')}
+        {if $fields.cronjob_status.value == 'DELETED'}
+        <input type="radio" name="{$fields.cronjob_status.name}" value="DELETED" checked="checked" />&nbsp;<img src="{$img_url}/icons/active/16/trash.png" alt="" />&nbsp;
+        {else}
+        <input type="radio" name="{$fields.cronjob_status.name}" value="DELETED" />&nbsp;<img src="{$img_url}/icons/inactive/16/trash.png" alt="" />&nbsp;
+        {/if}
+        {translate('Deleted')}
+      </div>
+      <div class="cj_hint">{translate('HINT_STATUS')}</div>
+    {/if}
+    <div class="cj_clear"></div>
+    
+    <div class="cj_label">&nbsp;</div>
+    <div class="cj_2_digit_header"><label for="{$fields.cronjob_hour.name}">{translate('Hours')}</label></div>
+    <div class="cj_2_digit_header"><label for="{$fields.cronjob_minute.name}">{translate('Minutes')}</label></div>
+    <div class="cj_2_digit_header"><label for="{$fields.cronjob_day_of_month.name}">{translate('Days')}</label></div>
+    <div class="cj_day_digit_header"><label for="{$fields.cronjob_day_of_week.name}">{translate('Weekdays')}</label></div>
+    <div class="cj_month_digit_header"><label for="{$fields.cronjob_month.name}">{translate('Month')}</label></div>
+    <div class="cj_hint">&nbsp;</div>
+    <div class="cj_clear"></div>
+    
+    <div class="cj_label">{translate('Define cronjob')}</div>
+    <div class="cj_2_digit">
+      <select id="{$fields.cronjob_hour.name}" name="{$fields.cronjob_hour.name}[]" size="12" multiple="multiple">
+        {foreach $fields.cronjob_hour.options option}
+          <option value="{$option}"{foreach $fields.cronjob_hour.value value}{if $value == $option}selected="selected"{/if}{/foreach}>{$option}</option>
+        {/foreach}
+      </select>
+    </div>
+    <div class="cj_2_digit">
+      <select id="{$fields.cronjob_minute.name}" name="{$fields.cronjob_minute.name}[]" size="12" multiple="multiple">
+        {foreach $fields.cronjob_minute.options option}
+          <option value="{$option}"{foreach $fields.cronjob_minute.value value}{if $value == $option}selected="selected"{/if}{/foreach}>{$option}</option>
+        {/foreach}
+      </select>
+    </div>
+    <div class="cj_2_digit">
+      <select id="{$fields.cronjob_day_of_month.name}" name="{$fields.cronjob_day_of_month.name}[]" size="12" multiple="multiple">
+        {foreach $fields.cronjob_day_of_month.options option}
+          <option value="{$option}"{foreach $fields.cronjob_day_of_month.value value}{if $value == $option}selected="selected"{/if}{/foreach}>{$option}</option>
+        {/foreach}
+      </select>
+    </div>
+    <div class="cj_day_digit">
+      <select id="{$fields.cronjob_day_of_week.name}" name="{$fields.cronjob_day_of_week.name}[]" size="12" multiple="multiple">
+        {foreach $fields.cronjob_day_of_week.options option}
+          <option value="{$option}"{foreach $fields.cronjob_day_of_week.value value}{if $value == $option}selected="selected"{/if}{/foreach}>{translate($option)}</option>
+        {/foreach}
+      </select>
+    </div>
+    <div class="cj_month_digit">
+      <select id="{$fields.cronjob_month.name}" name="{$fields.cronjob_month.name}[]" size="12" multiple="multiple">
+        {foreach $fields.cronjob_month.options option}
+          <option value="{$option}"{foreach $fields.cronjob_month.value value}{if $value == $option}selected="selected"{/if}{/foreach}>{translate($option)}</option>
+        {/foreach}
+      </select>
+    </div>
+    <div class="cj_hint">{translate('HINT_CRONJOB')}</div>
+    <div class="cj_clear"></div>
+    
+    <div class="cj_label">{translate('Cronjob preselect')}</div>
+    <div class="cj_input">
+      <ul>
+        <li><a href="javascript:select_each_5_minutes()">Cronjob alle 5 Minuten</a></li>
+        <li><a href="javascript:select_each_15_minutes()">Cronjob alle 15 Minuten</a></li>
+        <li><a href="javascript:select_each_30_minutes()">Cronjob alle 30 Minuten</a></li>
+        <li><a href="javascript:select_daily_0630()">Cronjob täglich um 06:30 Uhr</a></li>
+        <li><a href="javascript:select_each_monday_2315()">Cronjob jeden Montag um 23:15 Uhr</a></li>
+        <li><a href="javascript:select_february_07_1220()">Cronjob am 07. Februar um 12:20 Uhr</a></li>
+      </ul>
+    </div>
+    <div class="cj_hint">{translate('HINT_CRONJOB_SAMPLES')}</div>
+    <div class="cj_clear"></div>
+    
+    <div class="cj_label"><label for="{$fields.cronjob_command.name}">{translate('Command')}</label></div>
+    <div class="cj_input">
+      <input type="text" name="{$fields.cronjob_command.name}" value="{$fields.cronjob_command.value}" />
+    </div>
+    <div class="cj_hint">{translate('HINT_COMMAND')}</div>
+    <div class="cj_clear"></div>
+    
+    {if $fields.cronjob_id.value > 0}
+      <div class="cj_label">{translate('Last run')}</div>
+      <div class="cj_info" colspan="5">{$fields.cronjob_last_run.formatted}</div>
+      <div class="cj_hint">{translate('HINT_LAST_RUN')}</div>
+      <div class="cj_clear"></div>
+
+      <div class="cj_label">{translate('Last status')}</div>
+      <div class="cj_info" colspan="5">{$fields.cronjob_last_status.value}</div>
+      <div class="cj_hint">{translate('HINT_LAST_STATUS')}</div>
+      <div class="cj_clear"></div>
+
+      <div class="cj_label">{translate('Next run')}</div>
+      <div class="cj_info" colspan="5">{$fields.cronjob_next_run.formatted}</div>
+      <div class="cj_hint">{translate('HINT_NEXT_RUN')}</div>
+      <div class="cj_clear"></div>
+    {/if}
+    <div class="cj_label">&nbsp;</div>
+    <div class="cj_submit">
+      <input type="submit" value="{translate('OK')}" />&nbsp;
+      <input type="button" value="{translate('Abort')}" onclick="javascript: window.location = '{$form.action}'; return false;" />
+    </div>
+  </form>
+</div>

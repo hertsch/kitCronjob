@@ -65,6 +65,8 @@ class dbCronjobConfig extends dbConnectLE {
 
   const CFG_CRONJOB_KEY = 'cfg_cronjob_key';
   const CFG_CRONJOB_ACTIVE = 'cfg_cronjob_active';
+  const CFG_USE_SSL = 'cfg_use_ssl';
+  const CFG_CRONJOB_NAME_MINIMUM_LENGTH = 'cfg_cronjob_name_minimum_length'; 
 
   public $config_array = array(
       array(
@@ -80,7 +82,21 @@ class dbCronjobConfig extends dbConnectLE {
           'type' => self::TYPE_BOOLEAN,
           'value' => 1,
           'hint' => 'HINT_CFG_CRONJOB_ACTIVE'
-          )
+          ),
+  		array(
+  				'label' => 'LABEL_CFG_USE_SSL',
+  				'name' => self::CFG_USE_SSL,
+  				'type' => self::TYPE_BOOLEAN,
+  				'value' => '1',
+  				'hint' => 'HINT_CFG_USE_SSL'
+  				),
+  		array(
+  				'label' => 'LABEL_CFG_CRONJOB_NAME_MINIMUM_LENGTH',
+  				'name' => self::CFG_CRONJOB_NAME_MINIMUM_LENGTH,
+  				'type' => self::TYPE_INTEGER,
+  				'value' => 6,
+  				'hint' => 'HINT_CFG_CRONJOB_NAME_MINIMUM_LENGTH'
+  				)
   );
 
   /**
