@@ -32,7 +32,10 @@ if (defined('WB_PATH')) {
 }
 // end include class.secure.php
 
-require_once WB_PATH.'/modules/kit_cronjob/class.backend.php';
+// wb2lepton compatibility
+if (!defined('LEPTON_PATH')) require_once WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/wb2lepton.php';
+
+require_once LEPTON_PATH.'/modules/kit_cronjob/class.backend.php';
 
 $tool = new cronjobBackend();
 $tool->action();

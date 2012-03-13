@@ -36,7 +36,8 @@ $PRECHECK['WB_VERSION'] = array('VERSION' => '2.8', 'OPERATOR' => '>=');
 $PRECHECK['PHP_VERSION'] = array('VERSION' => '5.2.0', 'OPERATOR' => '>=');
 $PRECHECK['WB_ADDONS'] = array(
     'dbconnect_le'	=> array('VERSION' => '0.66', 'OPERATOR' => '>='),
-    'dwoo' => array('VERSION' => '0.11', 'OPERATOR' => '>=')
+    'dwoo' => array('VERSION' => '0.11', 'OPERATOR' => '>='),
+		'manufaktur_i18n' => array('VERSION' => '0.10', 'OPERATOR' => '>=')
 );
 
 global $database;

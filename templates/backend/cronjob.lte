@@ -66,7 +66,7 @@
     <div class="cj_clear"></div>
     
     <div class="cj_label">&nbsp;</div>
-    <div class="cj_2_digit_header"><label for="{$fields.cronjob_hour.name}">{I18n('Hours')}</label>{I18n('TEST')}</div>
+    <div class="cj_2_digit_header"><label for="{$fields.cronjob_hour.name}">{I18n('Hours')}</label></div>
     <div class="cj_2_digit_header"><label for="{$fields.cronjob_minute.name}">{I18n('Minutes')}</label></div>
     <div class="cj_2_digit_header"><label for="{$fields.cronjob_day_of_month.name}">{I18n('Days')}</label></div>
     <div class="cj_day_digit_header"><label for="{$fields.cronjob_day_of_week.name}">{I18n('Weekdays')}</label></div>
@@ -116,15 +116,15 @@
     <div class="cj_label">{I18n('Cronjob preselect')}</div>
     <div class="cj_input">
       <ul>
-        <li><a href="javascript:select_each_5_minutes()">Cronjob alle 5 Minuten</a></li>
-        <li><a href="javascript:select_each_15_minutes()">Cronjob alle 15 Minuten</a></li>
-        <li><a href="javascript:select_each_30_minutes()">Cronjob alle 30 Minuten</a></li>
-        <li><a href="javascript:select_daily_0630()">Cronjob täglich um 06:30 Uhr</a></li>
-        <li><a href="javascript:select_each_monday_2315()">Cronjob jeden Montag um 23:15 Uhr</a></li>
-        <li><a href="javascript:select_february_07_1220()">Cronjob am 07. Februar um 12:20 Uhr</a></li>
+        <li><a href="javascript:select_each_5_minutes()">{I18n('Execute  cronjob each 5 minutes')}</a></li>
+        <li><a href="javascript:select_each_15_minutes()">{I18n('Execute cronjob each 15 minutes')}</a></li>
+        <li><a href="javascript:select_each_30_minutes()">{I18n('Execute cronjob each 30 minutes')}</a></li>
+        <li><a href="javascript:select_daily_0630()">{I18n("Execute cronjob daily at 06:30 o'clock.")}</a></li>
+        <li><a href="javascript:select_each_monday_2315()">{I18n("Execute cronjob each monday at 23:15 o'clock")}</a></li>
+        <li><a href="javascript:select_february_07_1220()">{I18n("Execute cronjob at february, 7 at 12:20 o'clock")}</a></li>
       </ul>
     </div>
-    <div class="cj_hint">{I18n('HINT_CRONJOB_SAMPLES')}{translate ( " HINT_CRONJOB_XXX_SAMPLES")}</div>
+    <div class="cj_hint">{I18n('HINT_CRONJOB_SAMPLES')}</div>
     <div class="cj_clear"></div>
     
     <div class="cj_label"><label for="{$fields.cronjob_command.name}">{I18n('Command')}</label></div>

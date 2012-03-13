@@ -15,7 +15,7 @@
 // include class.secure.php to protect this file and the whole CMS!
 if (defined('WB_PATH')) {
   if (defined('LEPTON_VERSION'))
-    include (WB_PATH . '/framework/class.secure.php');
+    include(WB_PATH . '/framework/class.secure.php');
 } else {
   $oneback = "../";
   $root = $oneback;
@@ -25,18 +25,23 @@ if (defined('WB_PATH')) {
     $level += 1;
   }
   if (file_exists($root . '/framework/class.secure.php')) {
-    include ($root . '/framework/class.secure.php');
+    include($root . '/framework/class.secure.php');
   } else {
     trigger_error(sprintf("[ <b>%s</b> ] Can't include class.secure.php!", $_SERVER['SCRIPT_NAME']), E_USER_ERROR);
   }
 }
 // end include class.secure.php
 
-require_once WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/initialize.php';
+// wb2lepton compatibility
+if (!defined('LEPTON_PATH'))
+  require_once WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/wb2lepton.php';
+
+require_once LEPTON_PATH . '/modules/' . basename(dirname(__FILE__)) . '/initialize.php';
 
 global $cronjobInterface;
 
-if (!is_object($cronjobInterface)) $cronjobInterface = new cronjobInterface();
+if (!is_object($cronjobInterface))
+  $cronjobInterface = new cronjobInterface();
 
 class cronjobInterface {
 
@@ -74,25 +79,7 @@ class cronjobInterface {
       self::CRONJOB_LAST_RUN => '0000-00-00 00:00:00',
       self::CRONJOB_NEXT_RUN => '0000-00-00 00:00:00',
       self::CRONJOB_STATUS => dbCronjob::STATUS_ACTIVE,
-      self::CRONJOB_TIMESTAMP => '0000-00-00 00:00:00'
-      );
-
-  private $field_assign = array(
-      self::CRONJOB_ID => dbCronjob::FIELD_ID,
-      self::CRONJOB_NAME => dbCronjob::FIELD_NAME,
-      self::CRONJOB_DESCRIPTION => dbCronjob::FIELD_DESCRIPTION,
-      self::CRONJOB_HOUR => dbCronjob::FIELD_HOUR,
-      self::CRONJOB_MINUTE => dbCronjob::FIELD_MINUTE,
-      self::CRONJOB_DAY_OF_MONTH => dbCronjob::FIELD_DAY_OF_MONTH,
-      self::CRONJOB_DAY_OF_WEEK => dbCronjob::FIELD_DAY_OF_WEEK,
-      self::CRONJOB_MONTH => dbCronjob::FIELD_MONTH,
-      self::CRONJOB_COMMAND => dbCronjob::FIELD_COMMAND,
-      self::CRONJOB_LAST_STATUS => dbCronjob::FIELD_LAST_STATUS,
-      self::CRONJOB_LAST_RUN => dbCronjob::FIELD_LAST_RUN,
-      self::CRONJOB_NEXT_RUN => dbCronjob::FIELD_NEXT_RUN,
-      self::CRONJOB_STATUS => dbCronjob::FIELD_STATUS,
-      self::CRONJOB_TIMESTAMP => dbCronjob::FIELD_TIMESTAMP
-      );
+      self::CRONJOB_TIMESTAMP => '0000-00-00 00:00:00');
 
   private $error = '';
   private $message = '';
@@ -167,27 +154,61 @@ class cronjobInterface {
    * @param reference array $cronjob
    * @return boolean true on success, false on error
    */
-  public function getCronjob($id, &$cronjob=array()) {
+  public function getCronjob($id, &$cronjob = array()) {
     global $dbCronjob;
 
-    $SQL = sprintf("SELECT * FROM %s WHERE %s='%s'",
-        $dbCronjob->getTableName(),
-        dbCronjob::FIELD_ID,
-        $id);
+    $SQL = sprintf("SELECT * FROM %s WHERE %s='%s'", $dbCronjob->getTableName(), dbCronjob::FIELD_ID, $id);
     $cronjob = array();
     if (!$dbCronjob->sqlExec($SQL, $cronjob)) {
       $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbCronjob->getError()));
       return false;
     }
     if (count($cronjob) < 1) {
-      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
-          $this->lang->translate('Error: The record with the <b>ID {{ id }} does not exists!',
-              array('id' => $id))));
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $this->lang->translate('Error: The record with the <b>ID {{ id }} does not exists!', array(
+          'id' => $id))));
       return false;
     }
+echo "get:<pre>";
+print_r($cronjob);
+echo "</pre>";    
     $cronjob = $cronjob[0];
     return true;
   } // getCronjob()
+
+  /**
+   * Insert a new cronjob record to the database table
+   * 
+   * @param array $cronjob data
+   * @param integer $id the ID of the new record
+   * @return boolean
+   */
+  public function insertCronjob($cronjob, &$id = -1) {
+    global $dbCronjob;
+    
+    if (!$dbCronjob->sqlInsertRecord($cronjob, $id)) { 
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbCronjob->getError()));
+      return false;
+    }
+    return true;
+  } // insertCronjob()
+
+  /** 
+   * Update the existing cronjob with the id $id and the data $dronjob
+   * 
+   * @param integer $id
+   * @param array $cronjob
+   * @return boolean
+   */
+  public function updateCronjob($id, $cronjob) {
+    global $dbCronjob;
+    
+    $where = array(self::CRONJOB_ID => $id);
+    if (!$dbCronjob->sqlUpdateRecord($cronjob, $where)) {
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbCronjob->getError()));
+      return false;
+    }
+    return true;
+  } // updateCronjob()
 
   /**
    * Return the cronjob field array
@@ -205,11 +226,16 @@ class cronjobInterface {
    * @return boolean
    */
   public function checkCronjobRequests(&$cronjob) {
-  	$is_array = array(self::CRONJOB_DAY_OF_MONTH, self::CRONJOB_DAY_OF_WEEK, self::CRONJOB_HOUR,
-  			self::CRONJOB_MINUTE, self::CRONJOB_MONTH);
+    $is_array = array(
+        self::CRONJOB_DAY_OF_MONTH,
+        self::CRONJOB_DAY_OF_WEEK,
+        self::CRONJOB_HOUR,
+        self::CRONJOB_MINUTE,
+        self::CRONJOB_MONTH);
     foreach ($this->field_array as $key => $value) {
       if (isset($_REQUEST[$key])) {
-      	$cronjob[$key] = (in_array($key, $is_array)) ? implode($_REQUEST[$key]) : $_REQUEST[$key];
+        $cronjob[$key] = (in_array($key, $is_array)) ? implode($_REQUEST[$key])
+            : $_REQUEST[$key];
       }
     }
     return true;
@@ -224,30 +250,20 @@ class cronjobInterface {
    * @return boolean result
    */
   public function checkCronjobNameIsUnique($name, $ignore_ID = NULL) {
-  	global $dbCronjob;
-  	$result = array();
-  	if ($ignore_ID == NULL) {
-  		$SQL = sprintf("SELECT `%s` FROM %s WHERE `%s`='%s'",
-  				dbCronjob::FIELD_ID,
-  				$dbCronjob->getTableName(),
-  				dbCronjob::FIELD_NAME,
-  				$name);
-  	}
-  	else {
-  		$SQL = sprintf("SELECT `%s` FROM %s WHERE `%s`='%s' AND `%s`!='%s'",
-  				dbCronjob::FIELD_ID,
-  				$dbCronjob->getTableName(),
-  				dbCronjob::FIELD_NAME,
-  				$name,
-  				dbCronjob::FIELD_ID,
-  				$ignore_ID);
-  	}
-  	if (!$dbCronjob->sqlExec($SQL, $result)) {
-  		$this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbCronjob->getError()));
-  		return false;
-  	}
-  	if (count($result) > 0) return false;
-  	return true;
+    global $dbCronjob;
+    $result = array();
+    if ($ignore_ID == NULL) {
+      $SQL = sprintf("SELECT `%s` FROM %s WHERE `%s`='%s'", dbCronjob::FIELD_ID, $dbCronjob->getTableName(), dbCronjob::FIELD_NAME, $name);
+    } else {
+      $SQL = sprintf("SELECT `%s` FROM %s WHERE `%s`='%s' AND `%s`!='%s'", dbCronjob::FIELD_ID, $dbCronjob->getTableName(), dbCronjob::FIELD_NAME, $name, dbCronjob::FIELD_ID, $ignore_ID);
+    }
+    if (!$dbCronjob->sqlExec($SQL, $result)) {
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbCronjob->getError()));
+      return false;
+    }
+    if (count($result) > 0)
+      return false;
+    return true;
   } // checkCronjobNameIsUnique()
 
   /**
@@ -258,10 +274,9 @@ class cronjobInterface {
    * @param reference string $entries
    * @return boolean - true on success
    */
-  public function enumColumn2array($field, &$entries=array()) {
+  public function enumColumn2array($field, &$entries = array()) {
     global $dbCronjob;
-
-    if (!$dbCronjob->enumColumn2array($this->field_assign[$field], $entries)) {
+    if (!$dbCronjob->enumColumn2array($field, $entries)) {
       $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbCronjob->getError()));
       return false;
     }
@@ -276,8 +291,8 @@ class cronjobInterface {
    * @return mixed configuration value
    */
   public function getCronjobConfigValue($key) {
-  	global $dbCronjobConfig;
-  	return $dbCronjobConfig->getValue($key);
+    global $dbCronjobConfig;
+    return $dbCronjobConfig->getValue($key);
   } // getCronjobConfigValue()
 
   /**
@@ -288,8 +303,8 @@ class cronjobInterface {
    * @return boolean result
    */
   public function setCronjobConfigValue($key, $value) {
-  	global $dbCronjobConfig;
-  	return $dbCronjobConfig->setValueByName($value, $key);
+    global $dbCronjobConfig;
+    return $dbCronjobConfig->setValueByName($value, $key);
   } // setCronjobConfigValue()
 
 } // class CronjobInterface

@@ -32,6 +32,14 @@ if (defined('WB_PATH')) {
 }
 // end include class.secure.php
 
+// wb2lepton compatibility
+if (!defined('LEPTON_PATH')) require_once WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/wb2lepton.php';
+
+if (!class_exists('manufaktur_I18n'))
+	require_once LEPTON_PATH.'/modules/manufaktur_i18n/library.php';
+global $lang;
+if (!is_object($lang)) $lang = new manufaktur_I18n('kit_cronjob', LANGUAGE);
+
 class dbCronjobConfig extends dbConnectLE {
 
   const FIELD_ID = 'cfg_id';
@@ -105,9 +113,9 @@ class dbCronjobConfig extends dbConnectLE {
    * @param $createTable boolean
    */
   public function __construct($createTable = false) {
-    global $I18n;
+    global $lang;
     $this->createTable = $createTable;
-    $this->lang = $I18n;
+    $this->lang = $lang;
     parent::__construct();
     $this->setTableName('mod_kit_cj_config');
     $this->addFieldDefinition(self::FIELD_ID, "INT(11) NOT NULL AUTO_INCREMENT", true);
@@ -181,7 +189,7 @@ class dbCronjobConfig extends dbConnectLE {
     }
     if (count($config) < 1) {
       $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
-          $this->lang->translate('Error: There is no record for the configuration of <b>{{ name }}</b>!',
+          $this->lang->I18n('Error: There is no record for the configuration of <b>{{ name }}</b>!',
               array('name' => $name))));
       return false;
     }
@@ -283,7 +291,7 @@ class dbCronjobConfig extends dbConnectLE {
     }
     if (sizeof($config) < 1) {
       $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
-          $this->lang->translate('Error: The record with the <b>ID {{ id }}</b> does not exists!',
+          $this->lang->I18n('Error: The record with the <b>ID {{ id }}</b> does not exists!',
               array('id' => $id))));
       return false;
     }
@@ -307,7 +315,7 @@ class dbCronjobConfig extends dbConnectLE {
           $value = trim($new_value);
         }
         else {
-          $this->setMessage($this->lang->translate('<p>The email address <b>{{ email }}</b> is not valid!</p>',
+          $this->setMessage($this->lang->I18n('<p>The email address <b>{{ email }}</b> is not valid!</p>',
               array('email' => $new_value)));
           return false;
         }
@@ -365,7 +373,7 @@ class dbCronjobConfig extends dbConnectLE {
     }
     if (sizeof($config) < 1) {
       $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
-          $this->lang->translate('Error: There is no record for the configuration of <b>{{ name }}</b>!',
+          $this->lang->I18n('Error: There is no record for the configuration of <b>{{ name }}</b>!',
               array('name' => $name))));
       return false;
     }
@@ -439,20 +447,20 @@ class dbCronjobConfig extends dbConnectLE {
 
 class dbCronjob extends dbConnectLE {
 
-  const FIELD_ID = 'cj_id';
-  const FIELD_NAME = 'cj_name';
-  const FIELD_DESCRIPTION = 'cj_description';
-  const FIELD_MINUTE = 'cj_minute';
-  const FIELD_HOUR = 'cj_hour';
-  const FIELD_DAY_OF_MONTH = 'cj_day_of_month';
-  const FIELD_DAY_OF_WEEK = 'cj_day_of_week';
-  const FIELD_MONTH = 'cj_month';
-  const FIELD_COMMAND = 'cj_command';
-  const FIELD_LAST_STATUS = 'cj_last_status';
-  const FIELD_LAST_RUN = 'cj_last_run';
-  const FIELD_NEXT_RUN = 'cj_next_run';
-  const FIELD_STATUS = 'cj_status';
-  const FIELD_TIMESTAMP = 'cj_timestamp';
+  const FIELD_ID = 'cronjob_id';
+  const FIELD_NAME = 'cronjob_name';
+  const FIELD_DESCRIPTION = 'cronjob_description';
+  const FIELD_MINUTE = 'cronjob_minute';
+  const FIELD_HOUR = 'cronjob_hour';
+  const FIELD_DAY_OF_MONTH = 'cronjob_day_of_month';
+  const FIELD_DAY_OF_WEEK = 'cronjob_day_of_week';
+  const FIELD_MONTH = 'cronjob_month';
+  const FIELD_COMMAND = 'cronjob_command';
+  const FIELD_LAST_STATUS = 'cronjob_last_status';
+  const FIELD_LAST_RUN = 'cronjob_last_run';
+  const FIELD_NEXT_RUN = 'cronjob_next_run';
+  const FIELD_STATUS = 'cronjob_status';
+  const FIELD_TIMESTAMP = 'cronjob_timestamp';
 
   const STATUS_ACTIVE = 'ACTIVE';
   const STATUS_LOCKED = 'LOCKED';
@@ -467,10 +475,10 @@ class dbCronjob extends dbConnectLE {
    * @param $createTable boolean
    */
   public function __construct($createTable = false) {
-    global $I18n;
+    global $lang;
 
     $this->createTable = $createTable;
-    $this->lang = $I18n;
+    $this->lang = $lang;
 
     parent::__construct();
     $this->setTableName('mod_kit_cj_cronjob');
@@ -517,14 +525,14 @@ class dbCronjob extends dbConnectLE {
       return false;
     }
     if (!isset($result[0]['Type'])) {
-      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
-          $this->lang->translate('Error: The field <b>{{ field }}</b> does not exists!', array('field' => $field))));
+    	$this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
+          $this->lang->I18n('Error: The field <b>{{ field }}</b> does not exists!', array('field' => $field))));
       return false;
     }
     preg_match('#enum\((.*?)\)#i', $result[0]['Type'], $enum);
     if (!isset($enum[1])) {
       $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
-          $this->lang->translate("Error: The field <b>{{ field }}</b> seems not of type <b>ENUM()</b>, can't read any values!",
+          $this->lang->I18n("Error: The field <b>{{ field }}</b> seems not of type <b>ENUM()</b>, can't read any values!",
               array('field' => $field))));
       return false;
     }

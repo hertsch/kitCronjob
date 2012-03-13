@@ -11,10 +11,11 @@
  *
  * FOR VERSION- AND RELEASE NOTES PLEASE LOOK AT INFO.TXT!
  */
+
 // include class.secure.php to protect this file and the whole CMS!
 if (defined('WB_PATH')) {
   if (defined('LEPTON_VERSION'))
-    include (WB_PATH . '/framework/class.secure.php');
+    include(WB_PATH . '/framework/class.secure.php');
 } else {
   $oneback = "../";
   $root = $oneback;
@@ -24,15 +25,21 @@ if (defined('WB_PATH')) {
     $level += 1;
   }
   if (file_exists($root . '/framework/class.secure.php')) {
-    include ($root . '/framework/class.secure.php');
+    include($root . '/framework/class.secure.php');
   } else {
     trigger_error(sprintf("[ <b>%s</b> ] Can't include class.secure.php!", $_SERVER['SCRIPT_NAME']), E_USER_ERROR);
   }
 }
 // end include class.secure.php
 
-require_once (WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/class.interface.php');
-require_once WB_PATH.'/modules/manufaktur_i18n/class.dialog.php';
+// wb2lepton compatibility
+if (!defined('LEPTON_PATH'))
+  require_once WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/wb2lepton.php';
+
+require_once(LEPTON_PATH . '/modules/' . basename(dirname(__FILE__)) . '/class.interface.php');
+require_once LEPTON_PATH . '/modules/manufaktur_i18n/class.dialog.php';
+// load the standard functions of LEPTON framework
+require_once LEPTON_PATH . '/framework/functions.php';
 
 class cronjobBackend {
 
@@ -60,7 +67,7 @@ class cronjobBackend {
   public function __construct() {
     global $lang;
     $this->page_link = ADMIN_URL . '/admintools/tool.php?tool=kit_cronjob';
-    $this->img_url = WB_URL . '/modules/' . basename(dirname(__FILE__)) . '/images/';
+    $this->img_url = LEPTON_URL . '/modules/' . basename(dirname(__FILE__)) . '/images/';
     date_default_timezone_set(CFG_TIME_ZONE);
     $this->lang = $lang;
     // don't translate the Tab Strings here - this will be done in the template!
@@ -69,8 +76,7 @@ class cronjobBackend {
         self::ACTION_EDIT => 'Edit',
         self::ACTION_CONFIG => 'Settings',
         self::ACTION_LANGUAGE => 'Languages',
-        self::ACTION_ABOUT => 'About'
-    );
+        self::ACTION_ABOUT => 'About');
   } // __construct()
 
   /**
@@ -141,7 +147,7 @@ class cronjobBackend {
    */
   public function getVersion() {
     // read info.php into array
-    $info_text = file(WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/info.php');
+    $info_text = file(LEPTON_PATH . '/modules/' . basename(dirname(__FILE__)) . '/info.php');
     if ($info_text == false) {
       return -1;
     }
@@ -166,20 +172,17 @@ class cronjobBackend {
   protected function getTemplate($template, $template_data) {
     global $parser;
 
-    $template_path = WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/templates/backend/';
+    $template_path = LEPTON_PATH . '/modules/' . basename(dirname(__FILE__)) . '/templates/backend/';
 
     // check if a custom template exists ...
-    $load_template = (file_exists($template_path.'custom.'.$template)) ? $template_path.'custom.'.$template : $template_path.$template;
+    $load_template = (file_exists($template_path . 'custom.' . $template)) ? $template_path . 'custom.' . $template
+        : $template_path . $template;
     try {
       $result = $parser->get($load_template, $template_data);
-    }
-    catch (Exception $e) {
-      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $this->lang->I18n('Error executing the template '.
-          '<b>{{ template }}</b>: {{ error }}',
-          array(
-              'template' => basename($load_template),
-              'error' => $e->getMessage())
-          )));
+    } catch (Exception $e) {
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $this->lang->I18n('Error executing the template ' . '<b>{{ template }}</b>: {{ error }}', array(
+          'template' => basename($load_template),
+          'error' => $e->getMessage()))));
       return false;
     }
     return $result;
@@ -211,41 +214,44 @@ class cronjobBackend {
     $html_allowed = array();
     foreach ($_REQUEST as $key => $value) {
       if (strpos($key, 'cfg_') == 0)
-        continue; // ignore config values!
+        continue;
+      // ignore config values!
       if (!in_array($key, $html_allowed)) {
         $_REQUEST[$key] = $this->xssPrevent($value);
       }
     }
 
-    $action = isset($_REQUEST[self::REQUEST_ACTION]) ? $_REQUEST[self::REQUEST_ACTION] : self::ACTION_DEFAULT;
-    if (($action == self::ACTION_DEFAULT) && isset($_REQUEST[I18n_Dialog::REQUEST_ACTION])) $action = self::ACTION_LANGUAGE;
+    $action = isset($_REQUEST[self::REQUEST_ACTION]) ? $_REQUEST[self::REQUEST_ACTION]
+        : self::ACTION_DEFAULT;
+    if (($action == self::ACTION_DEFAULT) && isset($_REQUEST[I18n_Dialog::REQUEST_ACTION]))
+      $action = self::ACTION_LANGUAGE;
 
     switch ($action) :
-      case self::ACTION_CONFIG :
-        $this->show(self::ACTION_CONFIG, $this->dlgConfig());
-        break;
-      case self::ACTION_CONFIG_CHECK :
-        $this->show(self::ACTION_CONFIG, $this->checkConfig());
-        break;
-      case self::ACTION_ABOUT :
-        $this->show(self::ACTION_ABOUT, $this->dlgAbout());
-        break;
-      case self::ACTION_EDIT:
-        $this->show(self::ACTION_EDIT, $this->dlgEdit());
-        break;
-      case self::ACTION_EDIT_CHECK:
-        $this->show(self::ACTION_EDIT, $this->checkEdit());
-        break;
-      case self::ACTION_LANGUAGE:
-        $i18n_dialog = new I18n_Dialog('kit_cronjob');
-        $this->show(self::ACTION_LANGUAGE, $i18n_dialog->action());
-        break;
-      case self::ACTION_CRONJOBS:
-        $this->show(self::ACTION_CRONJOBS, $this->dlgCronjobs());
-        break;
-      default :
-        $this->show(self::ACTION_ABOUT, $this->dlgAbout());
-        break;
+    case self::ACTION_CONFIG:
+      $this->show(self::ACTION_CONFIG, $this->dlgConfig());
+      break;
+    case self::ACTION_CONFIG_CHECK:
+      $this->show(self::ACTION_CONFIG, $this->checkConfig());
+      break;
+    case self::ACTION_ABOUT:
+      $this->show(self::ACTION_ABOUT, $this->dlgAbout());
+      break;
+    case self::ACTION_EDIT:
+      $this->show(self::ACTION_EDIT, $this->dlgEdit());
+      break;
+    case self::ACTION_EDIT_CHECK:
+      $this->show(self::ACTION_EDIT, $this->checkEdit());
+      break;
+    case self::ACTION_LANGUAGE:
+      $i18n_dialog = new I18n_Dialog('kit_cronjob');
+      $this->show(self::ACTION_LANGUAGE, $i18n_dialog->action());
+      break;
+    case self::ACTION_CRONJOBS:
+      $this->show(self::ACTION_CRONJOBS, $this->dlgCronjobs());
+      break;
+    default:
+      $this->show(self::ACTION_ABOUT, $this->dlgAbout());
+      break;
     endswitch;
   } // action
 
@@ -260,19 +266,18 @@ class cronjobBackend {
   protected function show($action, $content) {
     $navigation = array();
     foreach ($this->tab_navigation_array as $key => $value) {
-    		$navigation[] = array(
-    		    'active' 	=> ($key == $action) ? 1 : 0,
-    		    'url'			=> sprintf('%s&%s', $this->page_link, http_build_query(array(self::REQUEST_ACTION => $key))),
-    		    'text'		=> $value
-    		);
+      $navigation[] = array(
+          'active' => ($key == $action) ? 1 : 0,
+          'url' => sprintf('%s&%s', $this->page_link, http_build_query(array(
+              self::REQUEST_ACTION => $key))),
+          'text' => $value);
     }
     $data = array(
-        'WB_URL'			=> WB_URL,
+        'LEPTON_URL' => LEPTON_URL,
         'IMG_URL' => $this->img_url,
-        'navigation'	=> $navigation,
-        'error'				=> ($this->isError()) ? 1 : 0,
-        'content'			=> ($this->isError()) ? $this->getError() : $content
-    );
+        'navigation' => $navigation,
+        'error' => ($this->isError()) ? 1 : 0,
+        'content' => ($this->isError()) ? $this->getError() : $content);
     echo $this->getTemplate('body.lte', $data);
   } // show()
 
@@ -285,8 +290,7 @@ class cronjobBackend {
     $data = array(
         'version' => sprintf('%01.2f', $this->getVersion()),
         'img_url' => $this->img_url,
-        'release_notes' => file_get_contents(WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/info.txt'),
-    );
+        'release_notes' => file_get_contents(LEPTON_PATH . '/modules/' . basename(dirname(__FILE__)) . '/info.txt'),);
     return $this->getTemplate('about.lte', $data);
   } // dlgAbout()
 
@@ -298,11 +302,7 @@ class cronjobBackend {
   protected function dlgConfig() {
     global $dbCronjobConfig;
 
-    $SQL = sprintf(	"SELECT * FROM %s WHERE NOT %s='%s' ORDER BY %s",
-        $dbCronjobConfig->getTableName(),
-        dbCronjobConfig::FIELD_STATUS,
-        dbCronjobConfig::STATUS_DELETED,
-        dbCronjobConfig::FIELD_NAME);
+    $SQL = sprintf("SELECT * FROM %s WHERE NOT %s='%s' ORDER BY %s", $dbCronjobConfig->getTableName(), dbCronjobConfig::FIELD_STATUS, dbCronjobConfig::STATUS_DELETED, dbCronjobConfig::FIELD_NAME);
     $config = array();
     if (!$dbCronjobConfig->sqlExec($SQL, $config)) {
       $this->setError($dbCronjobConfig->getError());
@@ -314,8 +314,10 @@ class cronjobBackend {
     foreach ($config as $entry) {
       $id = $entry[dbCronjobConfig::FIELD_ID];
       $count[] = $id;
-      $value = ($entry[dbCronjobConfig::FIELD_TYPE] == dbCronjobConfig::TYPE_LIST) ? $dbCronjobConfig->getValue($entry[dbCronjobConfig::FIELD_NAME]) : $entry[dbCronjobConfig::FIELD_VALUE];
-      if (isset($_REQUEST[dbCronjobConfig::FIELD_VALUE.'_'.$id])) $value = $_REQUEST[dbCronjobConfig::FIELD_VALUE.'_'.$id];
+      $value = ($entry[dbCronjobConfig::FIELD_TYPE] == dbCronjobConfig::TYPE_LIST) ? $dbCronjobConfig->getValue($entry[dbCronjobConfig::FIELD_NAME])
+          : $entry[dbCronjobConfig::FIELD_VALUE];
+      if (isset($_REQUEST[dbCronjobConfig::FIELD_VALUE . '_' . $id]))
+        $value = $_REQUEST[dbCronjobConfig::FIELD_VALUE . '_' . $id];
       $value = str_replace('"', '&quot;', stripslashes($value));
       $items[] = array(
           'id' => $id,
@@ -324,27 +326,19 @@ class cronjobBackend {
           'name' => sprintf('%s_%s', dbCronjobConfig::FIELD_VALUE, $id),
           'description' => $entry[dbCronjobConfig::FIELD_HINT],
           'type' => $entry[dbCronjobConfig::FIELD_TYPE],
-          'field' => $entry[dbCronjobConfig::FIELD_NAME]
-      );
+          'field' => $entry[dbCronjobConfig::FIELD_NAME]);
     }
     $data = array(
-        'form' => array(
-        		'name' => 'cronjob_cfg',
-        		'action' => $this->page_link
-        		),
+        'form' => array('name' => 'cronjob_cfg', 'action' => $this->page_link),
         'action' => array(
-        		'name' => self::REQUEST_ACTION,
-        		'value' => self::ACTION_CONFIG_CHECK
-        		),
+            'name' => self::REQUEST_ACTION,
+            'value' => self::ACTION_CONFIG_CHECK),
         'items' => array(
-        		'name' => self::REQUEST_ITEMS,
-        		'value' => implode(",", $count)
-        		),
-    		'message' => array(
-    				'text' => $this->isMessage() ? $this->getMessage() : ''
-    				),
-        'items' => $items,
-    );
+            'name' => self::REQUEST_ITEMS,
+            'value' => implode(",", $count)),
+        'message' => array(
+            'text' => $this->isMessage() ? $this->getMessage() : ''),
+        'items' => $items,);
     return $this->getTemplate('config.lte', $data);
   } // dlgConfig()
 
@@ -362,8 +356,8 @@ class cronjobBackend {
     if ((isset($_REQUEST[self::REQUEST_ITEMS])) && (!empty($_REQUEST[self::REQUEST_ITEMS]))) {
       $ids = explode(",", $_REQUEST[self::REQUEST_ITEMS]);
       foreach ($ids as $id) {
-        if (isset($_REQUEST[dbCronjobConfig::FIELD_VALUE.'_'.$id])) {
-          $value = $_REQUEST[dbCronjobConfig::FIELD_VALUE.'_'.$id];
+        if (isset($_REQUEST[dbCronjobConfig::FIELD_VALUE . '_' . $id])) {
+          $value = $_REQUEST[dbCronjobConfig::FIELD_VALUE . '_' . $id];
           $where = array();
           $where[dbCronjobConfig::FIELD_ID] = $id;
           $config = array();
@@ -372,9 +366,8 @@ class cronjobBackend {
             return false;
           }
           if (sizeof($config) < 1) {
-            $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
-                $this->lang->I18n('Error reading the configuration record with the <b>ID {{ id }}</b>.',
-                    array('id' => $id))));
+            $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $this->lang->I18n('Error reading the configuration record with the <b>ID {{ id }}</b>.', array(
+                'id' => $id))));
             return false;
           }
           $config = $config[0];
@@ -383,17 +376,15 @@ class cronjobBackend {
             if (!$dbCronjobConfig->setValue($value, $id) && $dbCronjobConfig->isError()) {
               $this->setError($dbCronjobConfig->getError());
               return false;
-            }
-            elseif ($dbCronjobConfig->isMessage()) {
+            } elseif ($dbCronjobConfig->isMessage()) {
               $message .= $dbCronjobConfig->getMessage();
-            }
-            else {
+            } else {
               // Datensatz wurde aktualisiert
-              $message .= $this->lang->I18n('<p>The setting for <b>{{ name }}</b> was changed.</p>',
-                  array('name' => $config[dbCronjobConfig::FIELD_NAME]));
+              $message .= $this->lang->I18n('<p>The setting for <b>{{ name }}</b> was changed.</p>', array(
+                  'name' => $config[dbCronjobConfig::FIELD_NAME]));
             }
           }
-          unset($_REQUEST[dbCronjobConfig::FIELD_VALUE.'_'.$id]);
+          unset($_REQUEST[dbCronjobConfig::FIELD_VALUE . '_' . $id]);
         }
       }
     }
@@ -410,45 +401,50 @@ class cronjobBackend {
     global $cronjobInterface;
 
     $id = isset($_REQUEST[cronjobInterface::CRONJOB_ID]) ? (int) $_REQUEST[cronjobInterface::CRONJOB_ID] : -1;
-
     if ($id < 1) {
       // create a new cronjob
       $fields = $cronjobInterface->getCronjobFieldArray();
       $fields[cronjobInterface::CRONJOB_ID] = -1;
-    }
-    else {
+    } else {
       $fields = array();
       if (!$cronjobInterface->getCronjob($id, $fields)) {
         $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $cronjobInterface->getError()));
         return false;
       }
+      if (count($fields) < 1) {
+      	$this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, 
+      			$this->lang->I18n('The cronjob with the ID {{ id }} does not exists!',
+      					array('id' => $id))));
+      	return false;
+      }
     }
-
+echo "<pre>";
+print_R($fields);
+echo "</pre>";    
     // walk through the fields and check for $_REQUESTs
     $cronjobInterface->checkCronjobRequests($fields);
 
     $items = array();
     $items['cronjob'] = array(
-    		'label' => $this->lang->I18n('LABEL_CRONJOB'),
-        'hint' => $this->lang->I18n('HINT_CRONJOB')
-    		);
+        'label' => $this->lang->I18n('LABEL_CRONJOB'),
+        'hint' => $this->lang->I18n('HINT_CRONJOB'));
 
     // walk through the fields and build the $items array for the template
     foreach ($fields as $key => $value) {
 
-      $items[$key] = array(
-          'name' => $key,
-          'value' => $value
-      );
+      if (isset($_REQUEST[$key]))
+        $value = $_REQUEST[$key];
 
-      switch ($key):
+      $items[$key] = array('name' => $key, 'value' => $value);
+
+      switch ($key) :
       case cronjobinterface::CRONJOB_MINUTE:
       case cronjobInterface::CRONJOB_HOUR:
       case cronjobInterface::CRONJOB_DAY_OF_MONTH:
       case cronjobInterface::CRONJOB_DAY_OF_WEEK:
       case cronjobInterface::CRONJOB_MONTH:
       case cronjobInterface::CRONJOB_STATUS:
-        // ENUM() fields
+      // ENUM() fields
         $entries = array();
         if (!$cronjobInterface->enumColumn2array($key, $entries)) {
           $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $cronjobInterface->getError()));
@@ -461,8 +457,7 @@ class cronjobBackend {
       case cronjobInterface::CRONJOB_TIMESTAMP:
         if ($value == '0000-00-00 00:00:00') {
           $items[$key]['formatted'] = '';
-        }
-        else {
+        } else {
           $items[$key]['formatted'] = date(CFG_DATETIME_STR, strtotime($value));
         }
       default:
@@ -471,21 +466,18 @@ class cronjobBackend {
     }
 
     $data = array(
-        'form' => array(
-        		'name' => 'cronjob_edit',
-            'action' => $this->page_link
-            ),
+        'form' => array('name' => 'cronjob_edit', 'action' => $this->page_link),
         'action' => array(
-          'name' => self::REQUEST_ACTION,
-          'value' => self::ACTION_EDIT_CHECK
-        		),
+            'name' => self::REQUEST_ACTION,
+            'value' => self::ACTION_EDIT_CHECK),
         'message' => array(
             'active' => (int) $this->isMessage(),
-            'text' => $this->isMessage() ? $this->getMessage() : ''
-            ),
+            'text' => $this->isMessage() ? $this->getMessage() : ''),
         'fields' => $items,
-    		'img_url' => $this->img_url,
-        );
+        'img_url' => $this->img_url,);
+echo "<pre>";
+print_r($data);
+echo "</pre>";    
     return $this->getTemplate('cronjob.lte', $data);
   } // dlgEdit()
 
@@ -495,108 +487,141 @@ class cronjobBackend {
    * @return boolean|string
    */
   protected function checkEdit() {
-  	global $cronjobInterface;
+    global $cronjobInterface;
 
-  	$checked = true;
-  	// check if each cronjob value isset
-  	if (!isset($_REQUEST[cronjobInterface::CRONJOB_HOUR]) || !isset($_REQUEST[cronjobInterface::CRONJOB_MINUTE]) ||
-  			!isset($_REQUEST[cronjobInterface::CRONJOB_DAY_OF_MONTH]) || !isset($_REQUEST[cronjobInterface::CRONJOB_DAY_OF_WEEK]) ||
-  			!isset($_REQUEST[cronjobInterface::CRONJOB_MONTH])) $checked = false;
+    $checked = true;
+    // check if each cronjob value isset
+    if (!isset($_REQUEST[cronjobInterface::CRONJOB_HOUR]) || !isset($_REQUEST[cronjobInterface::CRONJOB_MINUTE]) || !isset($_REQUEST[cronjobInterface::CRONJOB_DAY_OF_MONTH]) || !isset($_REQUEST[cronjobInterface::CRONJOB_DAY_OF_WEEK]) || !isset($_REQUEST[cronjobInterface::CRONJOB_MONTH]))
+      $checked = false;
 
-  	if (!$checked) {
-  		$this->setMessage($this->lang->I18n('At minimum please set a value for hour, minute, day, weekday and month for definition of the cronjob!'));
-  		return $this->dlgEdit();
-  	}
-  	// check the cronjob name
-  	if (empty($_REQUEST[cronjobInterface::CRONJOB_NAME])) {
-  		$this->setMessage($this->lang->I18n('Please define a unique name for the cronjob!'));
-  		return $this->dlgEdit();
-  	}
-  	$minimum_name_length = $cronjobInterface->getCronjobConfigValue(cronjobInterface::CFG_CRONJOB_NAME_MINIMUM_LENGTH);
-  	if (strlen(trim($_REQUEST[cronjobInterface::CRONJOB_NAME])) < $minimum_name_length) {
-  		$this->setMessage($this->lang->I18n('The cronjob name must be at minimum {{ length }} characters long.', array('length' => $minimum_name_length)));
-  		return $this->dlgEdit();
-  	}
-  	// check the cronjob command
-  	if (empty($_REQUEST[cronjobInterface::CRONJOB_COMMAND])) {
-  		$this->setMessage($this->lang->I18n('Please define the command to execute by the cronjob!'));
-  		return $this->dlgEdit();
-  	}
+    if (!$checked) {
+      $this->setMessage($this->lang->I18n('At minimum please set a value for hour, minute, day, weekday and month for definition of the cronjob!'));
+      return $this->dlgEdit();
+    }
+    // check the cronjob name
+    if (empty($_REQUEST[cronjobInterface::CRONJOB_NAME])) {
+      $this->setMessage($this->lang->I18n('Please define a unique name for the cronjob!'));
+      return $this->dlgEdit();
+    }
+    $minimum_name_length = $cronjobInterface->getCronjobConfigValue(cronjobInterface::CFG_CRONJOB_NAME_MINIMUM_LENGTH);
+    if (strlen(trim($_REQUEST[cronjobInterface::CRONJOB_NAME])) < $minimum_name_length) {
+      $this->setMessage($this->lang->I18n('The cronjob name must be at minimum {{ length }} characters long.', array(
+          'length' => $minimum_name_length)));
+      return $this->dlgEdit();
+    }
+    // check the cronjob command
+    if (empty($_REQUEST[cronjobInterface::CRONJOB_COMMAND])) {
+      $this->setMessage($this->lang->I18n('Please define the command to execute by the cronjob!'));
+      return $this->dlgEdit();
+    }
 
+    if ($_REQUEST[cronjobInterface::CRONJOB_ID] > 0) {
+      // already existing cronjob
+      $cronjob = array();
+      if (false === ($cronjobInterface->getCronjob($_REQUEST[cronjobInterface::CRONJOB_ID], $cronjob))) {
+        $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $cronjobInterface->getError()));
+        return false;
+      }
+      // read the $_REQUEST's into an array
+      $new_cronjob = array();
+      $cronjobInterface->checkCronjobRequests($new_cronjob);
 
-  	if ($_REQUEST[cronjobInterface::CRONJOB_ID] > 0) {
-  		// already existing cronjob
-  		$cronjob = array();
-  		if (false === ($cronjobInterface->getCronjob($_REQUEST[cronjobInterface::CRONJOB_ID], $cronjob))) {
-  			$this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $cronjobInterface->getError()));
-  			return false;
-  		}
-  		// read the $_REQUEST's into an array
-  		$new_cronjob = array();
-  		$cronjobInterface->checkCronjobRequests($new_cronjob);
+      if ($cronjob[cronjobInterface::CRONJOB_NAME] != $new_cronjob[cronjobInterface::CRONJOB_NAME]) {
+        // cronjob name changed - check if the name is unique!
+        if (!$cronjobInterface->checkCronjobNameIsUnique($new_cronjob[cronjobInterface::CRONJOB_NAME], $cronjob[cronjobInterface::CRONJOB_ID])) {
+          if ($cronjobInterface->isError()) {
+            $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $cronjobInterface->getError()));
+            return false;
+          }
+          $this->setMessage($this->lang->I18n('The cronjob name {{ name }} is not unique, please select another name!', array(
+              'name' => $cronjob[cronjobInterface::CRONJOB_NAME])));
+          return $this->dlgEdit();
+        }
+      }
+    } else {
+      // create a new cronjob
+      $conjob = array();
+      $cronjobInterface->checkCronjobRequests($cronjob);
+      // check the cronjob name - must be unique!
+      if (!$cronjobInterface->checkCronjobNameIsUnique($cronjob[cronjobInterface::CRONJOB_NAME])) {
+        if ($cronjobInterface->isError()) {
+          $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $cronjobInterface->getError()));
+          return false;
+        }
+        $this->setMessage($this->lang->I18n('The cronjob name {{ name }} is not unique, please select another name!', array(
+            'name' => $cronjob[cronjobInterface::CRONJOB_NAME])));
+        return $this->dlgEdit();
+      }
+    }
 
-  		if ($cronjob[cronjobInterface::CRONJOB_NAME] != $new_cronjob[cronjobInterface::CRONJOB_NAME]) {
-  			// cronjob name changed - check if the name is unique!
-  			if (!$cronjobInterface->checkCronjobNameIsUnique($new_cronjob[cronjobInterface::CRONJOB_NAME], $cronjob[cronjobInterface::CRONJOB_ID])) {
-  			  if ($cronjobInterface->isError()) {
-  			    $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $cronjobInterface->getError()));
-  			    return false;
-  			  }
-  			  $this->setMessage($this->lang->I18n('The cronjob name {{ name }} is not unique, please select another name!',
-  			      array('name' => $cronjob[cronjobInterface::CRONJOB_NAME])));
-  			  return $this->dlgEdit();
-  			}
-  		}
-  	}
-  	else {
-  		// create a new cronjob
-  		$conjob = array();
-  		$cronjobInterface->checkCronjobRequests($cronjob);
-  		// check the cronjob name - must be unique!
-  		if (!$cronjobInterface->checkCronjobNameIsUnique($cronjob[cronjobInterface::CRONJOB_NAME])) {
-  			if ($cronjobInterface->isError()) {
-  				$this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $cronjobInterface->getError()));
-  				return false;
-  			}
-  			$this->setMessage($this->lang->I18n('The cronjob name {{ name }} is not unique, please select another name!',
-  					array('name' => $cronjob[cronjobInterface::CRONJOB_NAME])));
-  			return $this->dlgEdit();
-  		}
-  	}
+    // ok - save the cronjob
+    $data = array();
+    foreach ($cronjobInterface->getCronjobFieldArray() as $key => $value) {
+      if (isset($_REQUEST[$key])) {
+        switch ($key) {
+        case cronjobinterface::CRONJOB_MINUTE:
+        case cronjobInterface::CRONJOB_HOUR:
+        case cronjobInterface::CRONJOB_DAY_OF_MONTH:
+        case cronjobInterface::CRONJOB_DAY_OF_WEEK:
+        case cronjobInterface::CRONJOB_MONTH:
+        case cronjobInterface::CRONJOB_STATUS:
+        // implode array values
+          if (is_array($_REQUEST[$key])) {
+          	$data[$key] = implode(',', $_REQUEST[$key]);
+          }
+          else {
+          	$data[$key] = '';
+          }
+          break;
+        case cronjobInterface::CRONJOB_LAST_RUN:
+        case cronjobInterface::CRONJOB_NEXT_RUN:
+        case cronjobInterface::CRONJOB_TIMESTAMP:
+        // nothing to do ...
+          break;
+        case cronjobInterface::CRONJOB_NAME:
+        // convert to a save name
+          $name = trim($_REQUEST[$key]);
+          $name = page_filename($name);
+          $data[$key] = $name;
+          $_REQUEST[$key] = $name;
+          break;
+        default:
+        // simply save the value
+          $data[$key] = $_REQUEST[$key];
+          break;
+        }
+      }
+    }
 
-
-
-    echo "<pre>";
-    print_r($_REQUEST);
-    echo "</pre>";
-    return __METHOD__;
-
+    if ($_REQUEST[cronjobInterface::CRONJOB_ID] > 0) {
+      // update existing cronjob
+      $id = $_REQUEST[cronjobInterface::CRONJOB_ID];
+      if (!$cronjobInterface->updateCronjob($id, $data)) {
+        $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $cronjobInterface->getError()));
+        return false;
+      }
+      $this->setMessage($this->lang->I18n('The cronjob with the ID {{ id }} was successfull updated.', array(
+          'id' => $id)));
+    } else {
+      // insert a new cronjob
+      $id = -1;
+      if (!$cronjobInterface->insertCronjob($data, $id)) {
+        $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $cronjobInterface->getError()));
+        return false;
+      }
+      $this->setMessage($this->lang->I18n('The cronjob with the ID {{ id }} was successfull inserted', array(
+          'id' => $id)));
+    }
+    foreach ($cronjobInterface->getCronjobFieldArray() as $key => $value) {
+      if (isset($_REQUEST[$key]))
+        unset($_REQUEST[$key]);
+    }
+    $_REQUEST[cronjobInterface::CRONJOB_ID] = $id;
+    return $this->dlgEdit();
   } // checkEdit()
 
   protected function dlgCronjobs() {
-/*
-    if (!$this->lang->loadLanguage('kit_cronjob', 'EN')) {
-      $this->setError($this->lang->getError());
-      return false;
-    }
-*/
-    // (prompt\(*|["'](.*)["'])
-    $lang = new I18n_Dialog('kit_cronjob');
-
-    //if (!$lang->scanDirectory(WB_PATH.'/modules/kit_cronjob')) {
-    //if (!$lang->changeEntriesFromStatusToStatus('kit_cronjob', 'ACTIVE', 'BACKUP')) {
-    if (!$lang->deleteEntriesByStatus('kit_cronjob', 'BACKUP')) {
-      $this->setError($lang->getError());
-      return false;
-    }
-return true;
-    /*
-    if (!$this->lang->loadLanguage('kit_cronjob', 'EN')) {
-      echo $this->lang->getError();
-    }
-
-*/
-    print_r($this->lang->language_array);
+    return __METHOD__;
   } // dlgCronjob()
 
 } // class cronjobBackend

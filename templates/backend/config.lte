@@ -18,34 +18,34 @@
   <form name="{$form.name}" action="{$form.action}" method="post">
     <input type="hidden" name="{$action.name}" value="{$action.value}" />
     <input type="hidden" name="{$items.name}" value="{$items.value}" />
-    <h2>{translate('Settings')}</h2>
+    <h2>{I18n('Settings')}</h2>
     <div class="{if count_characters($message.text) > 0}message{else}intro{/if}">
       {if count_characters($message.text) > 0}
         {$message.text}
       {else}
-        {translate('Edit the settings for kitCronjob.')}
+        {I18n('Edit the settings for kitCronjob.')}
       {/if}
     </div>
-    <div class="cjc_header_name">{translate('Name')}</div>
-    <div class="cjc_header_value">{translate('Value')}</div>
-    <div class="cjc_header_description">{translate('Description')}</div>
+    <div class="cjc_header_name">{I18n('Name')}</div>
+    <div class="cjc_header_value">{I18n('Value')}</div>
+    <div class="cjc_header_description">{I18n('Description')}</div>
     <div class="cjc_clear"></div>
     {$i=0}{foreach $items item}
       {if $i > 0}<div class="cjc_clear"></div>{/if}
-      <div class="cjc_value_name"><label for="{$item.name}">{translate($item.identifier)}</label></div>
+      <div class="cjc_value_name"><label for="{$item.name}">{I18n($item.identifier)}</label></div>
       <div class="cjc_value_value">
         {if $item.type == 'LIST'}
-        <textarea name="{$item.name}">{$item.value}</textarea>
+        <textarea name="{$item.name}">{$item.value}</textarea> 
         {else}
         <input type="text" name="{$item.name}" value="{$item.value}" />
         {/if}
       </div>
-      <div class="cjc_value_description">{translate($item.description)}</div>
+      <div class="cjc_value_description">{I18n($item.description)}</div>
     {$i=$i+1}{/foreach}
     <div class="cjc_clear"></div>
     <div class="cjc_submit">
-      <input type="submit" value="{translate('OK')}" />&nbsp;
-      <input type="button" value="{translate('Abort')}" onclick="javascript: window.location = '{$form.action}'; return false;" />
+      <input type="submit" value="{I18n('OK')}" />&nbsp;
+      <input type="button" value="{I18n('Abort')}" onclick="javascript: window.location = '{$form.action}'; return false;" />
     </div>
   </form>
 </div>
