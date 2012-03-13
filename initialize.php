@@ -32,6 +32,9 @@ if (defined('WB_PATH')) {
 }
 // end include class.secure.php
 
+/*
+require_once(WB_PATH.'/modules/kit_cronjob/class.language.php');
+
 // use LEPTON 2.x I18n for access to language files
 if (!class_exists('LEPTON_Helper_I18n')) require_once WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/framework/LEPTON/Helper/I18n.php';
 global $I18n;
@@ -42,18 +45,26 @@ else {
   $I18n->addFile('DE.php', WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/languages/');
 }
 
+*/
+
+if (!class_exists('manufaktur_I18n'))
+  require_once WB_PATH.'/modules/manufaktur_i18n/library.php';
+global $lang;
+if (!is_object($lang)) $lang = new manufaktur_I18n('kit_cronjob', LANGUAGE);
+
 // load language depending onfiguration
 if (!file_exists(WB_PATH.'/modules/' . basename(dirname(__FILE__)) . '/languages/' . LANGUAGE . '.cfg.php')) {
   require_once(WB_PATH .'/modules/'.basename(dirname(__FILE__)).'/languages/DE.cfg.php');
 } else {
   require_once(WB_PATH .'/modules/'.basename(dirname(__FILE__)).'/languages/' .LANGUAGE .'.cfg.php');
 }
+/*
 if (! file_exists(WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/languages/' . LANGUAGE . '.php')) {
-  if (! defined('KIT_FORM_LANGUAGE')) define('KIT_IDEA_LANGUAGE', 'DE'); // important: language flag is used by template selection
+  if (! defined('KIT_CRONJOB_LANGUAGE')) define('KIT_CRONJOB_LANGUAGE', 'DE'); // important: language flag is used by template selection
 } else {
-  if (! defined('KIT_FORM_LANGUAGE')) define('KIT_IDEA_LANGUAGE', LANGUAGE);
+  if (! defined('KIT_CRONJOB_LANGUAGE')) define('KIT_CRONJOB_LANGUAGE', LANGUAGE);
 }
-
+*/
 if (!class_exists('Dwoo')) {
   require_once WB_PATH.'/modules/dwoo/include.php';
 }
@@ -83,3 +94,5 @@ if (!is_object($dbCronjobConfig)) $dbCronjobConfig = new dbCronjobConfig();
 
 global $dbCronjob;
 if (!is_object($dbCronjob)) $dbCronjob = new dbCronjob();
+
+

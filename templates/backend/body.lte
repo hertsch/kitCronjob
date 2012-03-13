@@ -20,11 +20,15 @@
 <div class="idea_backend">
   <ul class="nav_tab">
   {foreach $navigation nav}
-    {if $nav.active == 1}
-      <li class="selected"><a href="{$nav.url}">{$nav.text}</a></li>
-    {else}
-      <li><a href="{$nav.url}">{$nav.text}</a></li>
-    {/if}
+    <li{if $nav.active == 1} class="selected"{/if} title="{I18n($nav.text)}">
+      <a href="{$nav.url}">
+        {if $nav.text == 'Languages'}
+          <img src="{$IMG_URL}/de-en-btn-43x12.png" width="43" height="12" alt="{I18n($nav.text)}" />
+        {else}
+          {I18n($nav.text)}
+        {/if}
+      </a>
+    </li>
   {/foreach}
   </ul>
 {if $error == 1}

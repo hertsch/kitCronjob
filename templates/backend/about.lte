@@ -17,12 +17,12 @@
 <div class="idea_about">
   {if isset($img_url)}
   <div class="about_logo">
-    <img src="{$img_url}kit_idea_logo_424x283.jpg" width="424" height="283" alt="kitIdea" />
+    <img src="{$img_url}kit_cronjob_logo_450x300.jpg" width="424" height="283" alt="kitCronjob" />
   </div>
   {/if}
   <div class="about_text">
-    <h2>kitIdea</h2>
-    <p>Release {$version}</b> - &copy 2011 by phpManufaktur, Ralf Hertsch (Berlin)</p>
+    <h2>kitCronjob</h2>
+    <p>Release {$version}</b> - &copy 2012 by phpManufaktur, Ralf Hertsch (Berlin)</p>
     <p class="about_address"><b>phpManufaktur</b><br />Ralf Hertsch<br />Stockholmer Str. 31<br />13359 Berlin</p>
     <p class="about_contact">
       <a href="http://phpmanufaktur.de" target="_blank">http://phpManufaktur.de</a><br />

@@ -43,7 +43,7 @@ $LANG = array(
     'About'
       => '?',
     'Active'
-      => 'Aktiv', 
+      => 'Aktiv',
 		'ACTIVE'
 		  => 'Aktiv',
 		'APR'
@@ -168,10 +168,12 @@ $LANG = array(
 		  => 'Oktober',
     'OK'
       => 'OK',
-    'Please create a new cronjob!'
-      => 'Erstellen Sie einen neuen Cronjob!',
+    'Please create a new cronjob like you need it.'
+      => 'Erstellen Sie einen neuen Cronjob nach Ihren Vorstellungen.',
 		'Please define a unique name for the cronjob!'
 			=> 'Bitte legen Sie einen eindeutigen Bezeichner für den Cronjob fest!',
+    'Please edit the cronjob with the <strong>ID {{ id }}</strong> like you need it.'
+      => 'Bearbeiten Sie den Cronjob mit der <strong>ID {{ id }}</strong> ganz nach ihren Wünschen.',
 		'Please define the command to execute by the cronjob!'
 			=> 'Bitte legen Sie den Befehl fest, der von dem Cronjob ausgeführt werden soll!',
 		'SAT'
@@ -198,5 +200,5 @@ $LANG = array(
 		  => 'Mittwoch',
 		'Weekdays'
 			=> 'Wochentage',
-		
+
 );

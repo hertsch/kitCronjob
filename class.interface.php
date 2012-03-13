@@ -54,7 +54,7 @@ class cronjobInterface {
   const CRONJOB_NEXT_RUN = 'cronjob_next_run';
   const CRONJOB_STATUS = 'cronjob_status';
   const CRONJOB_TIMESTAMP = 'cronjob_timestamp';
-  
+
   const CFG_CRONJOB_KEY = dbCronjobConfig::CFG_CRONJOB_KEY;
   const CFG_CRONJOB_ACTIVE = dbCronjobConfig::CFG_CRONJOB_ACTIVE;
   const CFG_USE_SSL = dbCronjobConfig::CFG_USE_SSL;
@@ -218,18 +218,17 @@ class cronjobInterface {
   /**
    * Check if a cronjob name is unique or not.
    * If $ignor_ID is specified the cronjob with this ID will be ignored.
-   * 
+   *
    * @param string $name
    * @param integer $ignore_ID
    * @return boolean result
    */
   public function checkCronjobNameIsUnique($name, $ignore_ID = NULL) {
   	global $dbCronjob;
-  	
   	$result = array();
   	if ($ignore_ID == NULL) {
   		$SQL = sprintf("SELECT `%s` FROM %s WHERE `%s`='%s'",
-  				dbCronjob::FIELD_ID, 
+  				dbCronjob::FIELD_ID,
   				$dbCronjob->getTableName(),
   				dbCronjob::FIELD_NAME,
   				$name);
@@ -242,15 +241,15 @@ class cronjobInterface {
   				$name,
   				dbCronjob::FIELD_ID,
   				$ignore_ID);
-  	} 
+  	}
   	if (!$dbCronjob->sqlExec($SQL, $result)) {
   		$this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbCronjob->getError()));
   		return false;
   	}
   	if (count($result) > 0) return false;
-  	return true;  	 
+  	return true;
   } // checkCronjobNameIsUnique()
-  
+
   /**
    * This function reads entries from type definition of ENUM() fields and
    * return an array with the values of the ENUM() string.
@@ -268,11 +267,11 @@ class cronjobInterface {
     }
     return true;
   } // enumColumn2array()
-  
+
   /**
    * Get the desired configuration $key and returns the value in the correct
    * data format.
-   * 
+   *
    * @param string $key
    * @return mixed configuration value
    */
@@ -280,10 +279,10 @@ class cronjobInterface {
   	global $dbCronjobConfig;
   	return $dbCronjobConfig->getValue($key);
   } // getCronjobConfigValue()
-  
+
   /**
    * Set a new value $value for the desired configuration $key
-   * 
+   *
    * @param string $key
    * @param string $value
    * @return boolean result

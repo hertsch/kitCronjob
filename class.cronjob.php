@@ -66,7 +66,7 @@ class dbCronjobConfig extends dbConnectLE {
   const CFG_CRONJOB_KEY = 'cfg_cronjob_key';
   const CFG_CRONJOB_ACTIVE = 'cfg_cronjob_active';
   const CFG_USE_SSL = 'cfg_use_ssl';
-  const CFG_CRONJOB_NAME_MINIMUM_LENGTH = 'cfg_cronjob_name_minimum_length'; 
+  const CFG_CRONJOB_NAME_MINIMUM_LENGTH = 'cfg_cronjob_name_minimum_length';
 
   public $config_array = array(
       array(
@@ -524,7 +524,7 @@ class dbCronjob extends dbConnectLE {
     preg_match('#enum\((.*?)\)#i', $result[0]['Type'], $enum);
     if (!isset($enum[1])) {
       $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
-          $this->lang->translate('Error: The field <b>{{ field }}</b> seems not of type <b>ENUM()</b>, can\'t read any values!',
+          $this->lang->translate("Error: The field <b>{{ field }}</b> seems not of type <b>ENUM()</b>, can't read any values!",
               array('field' => $field))));
       return false;
     }
