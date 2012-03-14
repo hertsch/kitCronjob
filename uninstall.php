@@ -31,3 +31,31 @@ if (defined('WB_PATH')) {
     }
 }
 // end include class.secure.php
+
+// wb2lepton compatibility
+if (!defined('LEPTON_PATH')) require_once WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/wb2lepton.php';
+
+require_once LEPTON_PATH.'/modules/kit_cronjob/initialize.php';
+
+global $admin;
+
+$tables = array(
+		'dbCronjob',
+		'dbCronjobConfig'
+		);
+$error = '';
+
+foreach ($tables as $table) {
+	$delete = null;
+	$delete = new $table();
+	if ($delete->sqlTableExists()) {
+		if (!$delete->sqlDeleteTable()) {
+			$error .= sprintf('<p>[UNINSTALL] %s</p>', $delete->getError());
+		}
+	}
+}
+
+// Prompt Errors
+if (!empty($error)) {
+	$admin->print_error($error);
+}

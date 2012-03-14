@@ -400,7 +400,8 @@ class cronjobBackend {
   protected function dlgEdit() {
     global $cronjobInterface;
 
-    $id = isset($_REQUEST[cronjobInterface::CRONJOB_ID]) ? (int) $_REQUEST[cronjobInterface::CRONJOB_ID] : -1;
+    $id = isset($_REQUEST[cronjobInterface::CRONJOB_ID]) ? (int) $_REQUEST[cronjobInterface::CRONJOB_ID]
+        : -1;
     if ($id < 1) {
       // create a new cronjob
       $fields = $cronjobInterface->getCronjobFieldArray();
@@ -412,15 +413,11 @@ class cronjobBackend {
         return false;
       }
       if (count($fields) < 1) {
-      	$this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, 
-      			$this->lang->I18n('The cronjob with the ID {{ id }} does not exists!',
-      					array('id' => $id))));
-      	return false;
+        $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $this->lang->I18n('The cronjob with the ID {{ id }} does not exists!', array(
+            'id' => $id))));
+        return false;
       }
     }
-echo "<pre>";
-print_R($fields);
-echo "</pre>";    
     // walk through the fields and check for $_REQUESTs
     $cronjobInterface->checkCronjobRequests($fields);
 
@@ -437,16 +434,22 @@ echo "</pre>";
 
       $items[$key] = array('name' => $key, 'value' => $value);
 
-      switch ($key) :
+      switch ($key) {
+      case cronjobInterface::CRONJOB_STATUS:
+        // ENUM() fields
+        $entries = array();
+        if (!$cronjobInterface->enumColumn2array($key, $entries)) {
+          $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $cronjobInterface->getError()));
+          return false;
+        }
+        break;
       case cronjobinterface::CRONJOB_MINUTE:
       case cronjobInterface::CRONJOB_HOUR:
       case cronjobInterface::CRONJOB_DAY_OF_MONTH:
       case cronjobInterface::CRONJOB_DAY_OF_WEEK:
       case cronjobInterface::CRONJOB_MONTH:
-      case cronjobInterface::CRONJOB_STATUS:
-      // ENUM() fields
         $entries = array();
-        if (!$cronjobInterface->enumColumn2array($key, $entries)) {
+        if (!$cronjobInterface->fieldDefaults2array($key, $entries)) {
           $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $cronjobInterface->getError()));
           return false;
         }
@@ -462,7 +465,7 @@ echo "</pre>";
         }
       default:
         break;
-      endswitch;
+      }
     }
 
     $data = array(
@@ -475,9 +478,6 @@ echo "</pre>";
             'text' => $this->isMessage() ? $this->getMessage() : ''),
         'fields' => $items,
         'img_url' => $this->img_url,);
-echo "<pre>";
-print_r($data);
-echo "</pre>";    
     return $this->getTemplate('cronjob.lte', $data);
   } // dlgEdit()
 
@@ -567,10 +567,9 @@ echo "</pre>";
         case cronjobInterface::CRONJOB_STATUS:
         // implode array values
           if (is_array($_REQUEST[$key])) {
-          	$data[$key] = implode(',', $_REQUEST[$key]);
-          }
-          else {
-          	$data[$key] = '';
+            $data[$key] = implode(',', $_REQUEST[$key]);
+          } else {
+            $data[$key] = '';
           }
           break;
         case cronjobInterface::CRONJOB_LAST_RUN:
@@ -621,7 +620,106 @@ echo "</pre>";
   } // checkEdit()
 
   protected function dlgCronjobs() {
-    return __METHOD__;
+  	global $cronjobInterface;
+  	
+  	$cronjobs = array();
+  	if (!$cronjobInterface->getCronjobsByStatus($cronjobs)) {
+  		$this->setError(sprintf('[%s .- %s] %s', __METHOD__, __LINE__, $cronjobInterface->getError()));
+  		return false;
+  	}
+    
+  	$items = array();
+  	$options_minute = array();
+  	$options_hour = array();
+  	$options_day_of_month = array();
+  	$options_day_of_week = array();
+  	$options_month = array();
+  	$cronjobInterface->fieldDefaults2array(cronjobInterface::CRONJOB_MINUTE, $options_minute);
+  	$cronjobInterface->fieldDefaults2array(cronjobInterface::CRONJOB_HOUR, $options_hour);
+  	$cronjobInterface->fieldDefaults2array(cronjobInterface::CRONJOB_DAY_OF_MONTH, $options_day_of_month);
+  	$cronjobInterface->fieldDefaults2array(cronjobInterface::CRONJOB_DAY_OF_WEEK, $options_day_of_week);
+  	$cronjobInterface->fieldDefaults2array(cronjobInterface::CRONJOB_MONTH, $options_month);
+  	 
+  	foreach ($cronjobs as $cronjob) {
+  		$items[$cronjob[cronjobInterface::CRONJOB_ID]] = array(
+  				'id' => array(
+  						'name' => cronjobInterface::CRONJOB_ID,
+  						'value' => $cronjob[cronjobInterface::CRONJOB_ID]
+  						),
+  				'name' => array(
+  						'name' => cronjobInterface::CRONJOB_NAME,
+  						'value' => $cronjob[cronjobInterface::CRONJOB_NAME]
+  						),
+  				'description' => array(
+  						'name' => cronjobInterface::CRONJOB_DESCRIPTION,
+  						'value' => $cronjob[cronjobInterface::CRONJOB_DESCRIPTION]
+  						),
+  				'minutes' => array(
+  						'name' => cronjobInterface::CRONJOB_MINUTE,
+  						'values' => $cronjob[cronjobInterface::CRONJOB_MINUTE],
+  						'options' => $options_minute
+  						),
+  				'hours' => array(
+  						'name' => cronjobInterface::CRONJOB_HOUR,
+  						'values' => $cronjob[cronjobInterface::CRONJOB_HOUR],
+  						'options' => $options_hour
+  				    ),
+  				'days_of_month' => array(
+  						'name' => cronjobInterface::CRONJOB_DAY_OF_MONTH,
+  						'values' => $cronjob[cronjobInterface::CRONJOB_DAY_OF_MONTH],
+  						'options' => $options_day_of_month
+  				     ),
+  				'days_of_week' => array(
+  						'name' => cronjobInterface::CRONJOB_DAY_OF_WEEK,
+  						'values' => $cronjob[cronjobInterface::CRONJOB_DAY_OF_WEEK],
+  						'options' => $options_day_of_week
+  				    ),
+  				'months' => array(
+  						'name' => cronjobInterface::CRONJOB_MONTH,
+  						'values' => $cronjob[cronjobInterface::CRONJOB_MONTH],
+  						'options' => $options_month
+  				    ),
+  				'command' => array(
+  						'name' => cronjobInterface::CRONJOB_COMMAND,
+  						'value' => $cronjob[cronjobInterface::CRONJOB_COMMAND],
+  				    ),
+  				'last_run' => array(
+  						'name' => cronjobInterface::CRONJOB_LAST_RUN,
+  						'value' => $cronjob[cronjobInterface::CRONJOB_LAST_RUN],
+  						'formatted' => ($cronjob[cronjobInterface::CRONJOB_LAST_RUN] != '0000-00-00 00:00:00') ? date(CFG_DATETIME_STR, strtotime($cronjob[cronjobInterface::CRONJOB_LAST_RUN])) : ''
+  				    ),
+  				'next_run' => array(
+  						'name' => cronjobInterface::CRONJOB_NEXT_RUN,
+  						'value' => $cronjob[cronjobInterface::CRONJOB_NEXT_RUN],
+  						'formatted' => ($cronjob[cronjobInterface::CRONJOB_NEXT_RUN] != '0000-00-00 00:00:00') ? date(CFG_DATETIME_STR, strtotime($cronjob[cronjobInterface::CRONJOB_NEXT_RUN])) : ''
+  				    ),
+  				'last_status' => array(
+  						'name' => cronjobInterface::CRONJOB_LAST_STATUS,
+  						'value' => $cronjob[cronjobInterface::CRONJOB_LAST_STATUS]
+  				    ),  				
+  				'status' => array(
+  						'name' => cronjobInterface::CRONJOB_STATUS,
+  						'value' => $cronjob[cronjobInterface::CRONJOB_STATUS],
+  						'options' => $cronjobInterface->enumColumn2array(cronjobInterface::CRONJOB_STATUS)
+  				    ),
+  				'timestamp' => array(
+  						'name' => cronjobInterface::CRONJOB_TIMESTAMP,
+  						'value' => $cronjob[cronjobInterface::CRONJOB_TIMESTAMP],
+  						'formatted' => date(CFG_DATETIME_STR, strtotime($cronjob[cronjobInterface::CRONJOB_TIMESTAMP]))
+  				    ),
+  				'action' => array(
+  						'edit' => sprintf('%s&%s', $this->page_link, http_build_query(array(
+  								self::REQUEST_ACTION => self::ACTION_EDIT,
+  								cronjobInterface::CRONJOB_ID => $cronjob[cronjobInterface::CRONJOB_ID]
+  								))),
+  						)   				
+  				);
+  	}
+  	
+  	$data = array(
+  			'cronjobs' => $items
+  			);
+  	return $this->getTemplate('list.lte', $data);
   } // dlgCronjob()
 
 } // class cronjobBackend

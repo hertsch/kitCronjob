@@ -35,13 +35,6 @@ if (defined('WB_PATH')) {
 // wb2lepton compatibility
 if (!defined('LEPTON_PATH')) require_once WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/wb2lepton.php';
 
-// load language depending onfiguration
-if (!file_exists(LEPTON_PATH.'/modules/' . basename(dirname(__FILE__)) . '/languages/' . LANGUAGE . '.cfg.php')) {
-  require_once(LEPTON_PATH .'/modules/'.basename(dirname(__FILE__)).'/languages/DE.cfg.php');
-} else {
-  require_once(LEPTON_PATH .'/modules/'.basename(dirname(__FILE__)).'/languages/' .LANGUAGE .'.cfg.php');
-}
-
 require_once LEPTON_PATH.'/modules/kit_cronjob/initialize.php';
 
 global $admin;

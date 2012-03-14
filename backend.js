@@ -125,7 +125,7 @@ function select_each_monday_2315() {
 	}
 	CONTROL = document.cronjob_edit.cronjob_day_of_week;
 	for (var i = 0; i < CONTROL.length; i++) {
-		if (CONTROL.options[i].value=='MON') {
+		if (CONTROL.options[i].value=='Monday') {
 			CONTROL.options[i].selected = true;
 		}
 		else {
@@ -148,7 +148,7 @@ function select_february_07_1220() {
 	}
 	CONTROL = document.cronjob_edit.cronjob_minute;
 	for (var i = 0; i < CONTROL.length; i++) {
-		if (CONTROL.options[i].value==20) {
+		if (CONTROL.options[i].value==20) { 
 			CONTROL.options[i].selected = true;
 		}
 		else {
@@ -166,7 +166,7 @@ function select_february_07_1220() {
 	}
 	CONTROL = document.cronjob_edit.cronjob_month;
 	for (var i = 0; i < CONTROL.length; i++) {
-		if (CONTROL.options[i].value=='FEB') {
+		if (CONTROL.options[i].value=='February') {
 			CONTROL.options[i].selected = true;
 		}
 		else {
@@ -174,181 +174,3 @@ function select_february_07_1220() {
 		}
 	}	
 }
-/*
-function selectAll() {
-						CONTROL = document.auswahlform.hour;
-						for(var i = 0;i < CONTROL.length;i++){
-							CONTROL.options[i].selected = true;
-						}
-						CONTROL = document.auswahlform.minute;
-						for(var i = 0;i < CONTROL.length;i++){
-							CONTROL.options[i].selected = true;
-						}
-						CONTROL = document.auswahlform.day;
-						for(var i = 0;i < CONTROL.length;i++){
-							CONTROL.options[i].selected = true;
-						}
-						CONTROL = document.auswahlform.wd;
-						for(var i = 0;i < CONTROL.length;i++){
-							CONTROL.options[i].selected = true;
-						}
-						CONTROL = document.auswahlform.mon;
-						for(var i = 0;i < CONTROL.length;i++){
-							CONTROL.options[i].selected = true;
-						}
-					}
-					
-                	function deselectAll() {
-						CONTROL = document.auswahlform.hour;
-						for(var i = 0;i < CONTROL.length;i++){
-							CONTROL.options[i].selected = false;
-						}
-						CONTROL = document.auswahlform.minute;
-						for(var i = 0;i < CONTROL.length;i++){
-							CONTROL.options[i].selected = false;
-						}
-						CONTROL = document.auswahlform.day;
-						for(var i = 0;i < CONTROL.length;i++){
-							CONTROL.options[i].selected = false;
-						}
-						CONTROL = document.auswahlform.wd;
-						for(var i = 0;i < CONTROL.length;i++){
-							CONTROL.options[i].selected = false;
-						}
-						CONTROL = document.auswahlform.mon;
-						for(var i = 0;i < CONTROL.length;i++){
-							CONTROL.options[i].selected = false;
-						}
-					}
-
-					function scriptA() {
-						selectAll();
-						CONTROL = document.auswahlform.minute;
-						for(var i = 0;i < CONTROL.length;i++){
-							if(CONTROL.options[i].value==0 || CONTROL.options[i].value==15 || CONTROL.options[i].value==30 || CONTROL.options[i].value==45) {
-								CONTROL.options[i].selected = true;
-							}
-							else {
-								CONTROL.options[i].selected = false;
-							}
-						}
-					}
-					function scriptB() {
-						selectAll();
-						CONTROL = document.auswahlform.minute;
-						for(var i = 0;i < CONTROL.length;i++){
-							if(CONTROL.options[i].value==0 || CONTROL.options[i].value==30) {
-								CONTROL.options[i].selected = true;
-							}
-							else {
-								CONTROL.options[i].selected = false;
-							}
-						}
-					}
-					function scriptC() {
-						selectAll();
-						CONTROL = document.auswahlform.hour;
-						for(var i = 0;i < CONTROL.length;i++){
-							if(i==12) {
-								CONTROL.options[i].selected = true;
-							}
-							else {
-								CONTROL.options[i].selected = false;
-							}
-						}
-						CONTROL = document.auswahlform.minute;
-						for(var i = 0;i < CONTROL.length;i++){
-							if(CONTROL.options[i].value==30) {
-								CONTROL.options[i].selected = true;
-							}
-							else {
-								CONTROL.options[i].selected = false;
-							}
-						}
-					}
-					function scriptD() {
-						selectAll();
-						CONTROL = document.auswahlform.wd;
-						for(var i = 0;i < CONTROL.length;i++){
-							if(i==0) {
-								CONTROL.options[i].selected = true;
-							}
-							else {
-								CONTROL.options[i].selected = false;
-							}
-						}
-						CONTROL = document.auswahlform.hour;
-						for(var i = 0;i < CONTROL.length;i++){
-							if(i==0) {
-								CONTROL.options[i].selected = true;
-							}
-							else {
-								CONTROL.options[i].selected = false;
-							}
-						}
-						CONTROL = document.auswahlform.minute;
-						for(var i = 0;i < CONTROL.length;i++){
-							if(CONTROL.options[i].value==0) {
-								CONTROL.options[i].selected = true;
-							}
-							else {
-								CONTROL.options[i].selected = false;
-							}
-						}
-					}
-					function scriptE() {
-						selectAll();
-						CONTROL = document.auswahlform.minute;
-						for(var i = 0;i < CONTROL.length;i++){
-							if(CONTROL.options[i].value==0 || CONTROL.options[i].value==5 || CONTROL.options[i].value==10 || CONTROL.options[i].value==15 || CONTROL.options[i].value==20 || CONTROL.options[i].value==25 || CONTROL.options[i].value==30 || CONTROL.options[i].value==35 || CONTROL.options[i].value==40 || CONTROL.options[i].value==45 || CONTROL.options[i].value==50 || CONTROL.options[i].value==55) {
-								CONTROL.options[i].selected = true;
-							}
-							else {
-								CONTROL.options[i].selected = false;
-							}
-						}
-					}
-					function scriptF() {
-						deselectAll();
-						CONTROL = document.auswahlform.minute;
-						for(var i = 0;i < CONTROL.length;i++){
-							if(CONTROL.options[i].value==0) {
-								CONTROL.options[i].selected = true;
-							}
-							else {
-								CONTROL.options[i].selected = false;
-							}
-						}
-						CONTROL = document.auswahlform.hour;
-						for(var i = 0;i < CONTROL.length;i++){
-							if(i==13) {
-								CONTROL.options[i].selected = true;
-							}
-							else {
-								CONTROL.options[i].selected = false;
-							}
-						}
-						CONTROL = document.auswahlform.wd;
-						for(var i = 0;i < CONTROL.length;i++){
-							CONTROL.options[i].selected = true;
-						}
-						CONTROL = document.auswahlform.day;
-						for(var i = 0;i < CONTROL.length;i++){
-							if(i==23) {
-								CONTROL.options[i].selected = true;
-							}
-							else {
-								CONTROL.options[i].selected = false;
-							}
-						}
-						CONTROL = document.auswahlform.mon;
-						for(var i = 0;i < CONTROL.length;i++){
-							if(i==11) {
-								CONTROL.options[i].selected = true;
-							}
-							else {
-								CONTROL.options[i].selected = false;
-							}
-						}
-					}
-*/

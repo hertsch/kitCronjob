@@ -295,3 +295,68 @@ kbd {
 .cjc_submit {
   padding: 10px 0 0 20%;
 }
+
+/**
+Cronjob list
+**/
+.cl_fieldset {
+  padding: 10px;
+  margin: 20px 0 0 0;
+}
+.cl_label {
+  float: left;
+  width: 100px;
+  font-weight: bold;
+}
+.cl_label.cl_id {
+  width: 20px;
+}
+.cl_label.cl_name {
+  width: 50px;
+}
+.cl_value {
+  float: left;
+  width: 100px;
+}
+.cl_value.cl_id {
+  width: 80px;
+}
+.cl_value.cl_next_run,
+.cl_value.cl_last_run {
+  width: 150px;
+}
+cl_value.cl_months,
+.cl_value.cl_days_of_week,
+.cl_value.cl_hours,
+.cl_value.cl_days_of_month,
+.cl_value.cl_minutes,
+.cl_value.cl_description {
+  width: 750px;
+}
+.cl_clear {
+  clear: both;
+  margin: 0 0 8px 0;
+}
+.cl_digit_03,
+.cl_digit_02 {
+  float: left;
+  width: 15px;
+  padding: 2px;
+  margin: 0 2px 0 0;
+  border: 1px solid #c8c8c8;
+  text-align: center;
+  font-weight: normal;
+  color: #c8c8c8;
+  background-color: transparent;
+}
+.cl_digit_03 {
+  width: 26px;
+}
+
+.cl_digit_03.digit_active,
+.cl_digit_02.digit_active {
+  border: 1px solid #000;
+  color: #000;
+  background-color: #ffffdd;
+  font-weight: normal;
+}

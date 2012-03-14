@@ -465,6 +465,12 @@ class dbCronjob extends dbConnectLE {
   const STATUS_ACTIVE = 'ACTIVE';
   const STATUS_LOCKED = 'LOCKED';
   const STATUS_DELETED = 'DELETED';
+  
+  private static $minute_array = array(0,5,10,15,20,25,30,35,40,45,50,55);
+  private static $hour_array = array(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23);
+  private static $day_of_month_array = array(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31);
+  private static $day_of_week_array = array('Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday');
+  private static $month_array = array('January','February','March','April','May','June','July','August','September','October','November','December');
 
   private $createTable = false;
   protected $lang = NULL;
@@ -485,11 +491,11 @@ class dbCronjob extends dbConnectLE {
     $this->addFieldDefinition(self::FIELD_ID, "INT(11) NOT NULL AUTO_INCREMENT", true);
     $this->addFieldDefinition(self::FIELD_NAME, "VARCHAR(64) NOT NULL DEFAULT ''");
     $this->addFieldDefinition(self::FIELD_DESCRIPTION, "TEXT");
-    $this->addFieldDefinition(self::FIELD_MINUTE, "ENUM('0','5','10','15','20','25','30','35','40','45','50','55') DEFAULT '0'");
-    $this->addFieldDefinition(self::FIELD_HOUR, "ENUM('0','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23') DEFAULT '0'");
-    $this->addFieldDefinition(self::FIELD_DAY_OF_MONTH, "ENUM('1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31') DEFAULT '1'");
-    $this->addFieldDefinition(self::FIELD_DAY_OF_WEEK, "ENUM('SUN','MON','TUE','WED','THU','FRI','SAT') DEFAULT 'SUN'");
-    $this->addFieldDefinition(self::FIELD_MONTH, "ENUM('JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC') DEFAULT 'JAN'");
+    $this->addFieldDefinition(self::FIELD_MINUTE, "VARCHAR(255) NOT NULL DEFAULT '' DEFAULT '0'");
+    $this->addFieldDefinition(self::FIELD_HOUR, "VARCHAR(255) NOT NULL DEFAULT '0'");
+    $this->addFieldDefinition(self::FIELD_DAY_OF_MONTH, "VARCHAR(255) NOT NULL DEFAULT '1'");
+    $this->addFieldDefinition(self::FIELD_DAY_OF_WEEK, "VARCHAR(255) NOT NULL DEFAULT 'Sunday'");
+    $this->addFieldDefinition(self::FIELD_MONTH, "VARCHAR(255) NOT NULL DEFAULT 'January'");
     $this->addFieldDefinition(self::FIELD_COMMAND, "TEXT");
     $this->addFieldDefinition(self::FIELD_LAST_RUN, "DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00'");
     $this->addFieldDefinition(self::FIELD_LAST_STATUS, "TEXT");
@@ -508,7 +514,7 @@ class dbCronjob extends dbConnectLE {
       }
     }
   } // __construct()
-
+  
   /**
    * This function reads entries from type definition of ENUM() fields and
    * return an array with the values of the ENUM() string.
@@ -518,26 +524,62 @@ class dbCronjob extends dbConnectLE {
    * @return boolean - true on success
    */
   public function enumColumn2array($field, &$entries) {
-    $SQL = sprintf("SHOW COLUMNS FROM %s WHERE FIELD = '%s'", $this->getTableName(), $field);
-    $result = array();
-    if (!$this->sqlExec($SQL, $result)) {
-      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $this->getError()));
-      return false;
-    }
-    if (!isset($result[0]['Type'])) {
-    	$this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
-          $this->lang->I18n('Error: The field <b>{{ field }}</b> does not exists!', array('field' => $field))));
-      return false;
-    }
-    preg_match('#enum\((.*?)\)#i', $result[0]['Type'], $enum);
-    if (!isset($enum[1])) {
-      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
-          $this->lang->I18n("Error: The field <b>{{ field }}</b> seems not of type <b>ENUM()</b>, can't read any values!",
-              array('field' => $field))));
-      return false;
-    }
-    $entries = explode(",", str_replace("'", "", $enum[1]));
-    return true;
+  	$SQL = sprintf("SHOW COLUMNS FROM %s WHERE FIELD = '%s'", $this->getTableName(), $field);
+  	$result = array();
+  	if (!$this->sqlExec($SQL, $result)) {
+  		$this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $this->getError()));
+  		return false;
+  	}
+  	if (!isset($result[0]['Type'])) {
+  		$this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
+  				$this->lang->I18n('Error: The field <b>{{ field }}</b> does not exists!', array('field' => $field))));
+  		return false;
+  	}
+  	preg_match('#enum\((.*?)\)#i', $result[0]['Type'], $enum);
+  	if (!isset($enum[1])) {
+  		$this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
+  				$this->lang->I18n("Error: The field <b>{{ field }}</b> seems not of type <b>ENUM()</b>, can't read any values!",
+  						array('field' => $field))));
+  		return false;
+  	}
+  	$entries = explode(",", str_replace("'", "", $enum[1]));
+  	return true;
   } // enumColumn2array()
+  
 
+  /**
+	 * @return the $minute_array
+	 */
+	public static function getMinute_array() {
+		return dbCronjob::$minute_array;
+	}
+
+  /**
+	 * @return the $hour_array
+	 */
+	public static function getHour_array() {
+		return dbCronjob::$hour_array;
+	}
+
+  /**
+	 * @return the $date_of_month_array
+	 */
+	public static function getDay_of_month_array() {
+		return dbCronjob::$day_of_month_array;
+	}
+
+  /**
+	 * @return the $day_of_week_array
+	 */
+	public static function getDay_of_week_array() {
+		return dbCronjob::$day_of_week_array;
+	}
+
+  /**
+	 * @return the $month_array
+	 */
+	public static function getMonth_array() {
+		return dbCronjob::$month_array;
+	}
+  
 } // class CronjobList
