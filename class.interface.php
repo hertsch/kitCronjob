@@ -164,13 +164,13 @@ class cronjobInterface {
       return false;
     }
     if (count($cronjob) < 1) {
-      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, 
-      		$this->lang->translate('Error: The record with the <b>ID {{ id }} does not exists!', 
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
+      		$this->lang->translate('Error: The record with the <b>ID {{ id }} does not exists!',
       				array('id' => $id))));
       return false;
     }
     $cronjob = $cronjob[0];
-    
+
     // explode the fields minute, hour, day_of_month, day_of_week and month
     $translate = array(
     		dbCronjob::FIELD_MINUTE,
@@ -188,14 +188,14 @@ class cronjobInterface {
 
   /**
    * Insert a new cronjob record to the database table
-   * 
+   *
    * @param array $cronjob data
    * @param integer $id the ID of the new record
    * @return boolean
    */
   public function insertCronjob($cronjob, &$id = -1) {
     global $dbCronjob;
-    
+
     // implode the fields minute, hour, day_of_month, day_of_week and month
     $translate = array(
     		dbCronjob::FIELD_MINUTE,
@@ -210,24 +210,24 @@ class cronjobInterface {
       	$cronjob[$key] = $string;
     	}
     }
-    
-    if (!$dbCronjob->sqlInsertRecord($cronjob, $id)) { 
+
+    if (!$dbCronjob->sqlInsertRecord($cronjob, $id)) {
       $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbCronjob->getError()));
       return false;
     }
     return true;
   } // insertCronjob()
 
-  /** 
+  /**
    * Update the existing cronjob with the id $id and the data $dronjob
-   * 
+   *
    * @param integer $id
    * @param array $cronjob
    * @return boolean
    */
   public function updateCronjob($id, $cronjob) {
     global $dbCronjob;
-    
+
     $where = array(self::CRONJOB_ID => $id);
     if (!$dbCronjob->sqlUpdateRecord($cronjob, $where)) {
       $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbCronjob->getError()));
@@ -308,18 +308,18 @@ class cronjobInterface {
     }
     return true;
   } // enumColumn2array()
-  
+
   /**
    * Return the default entries for the fields DAY_OF_MONTH, DAY_OF_WEEK, HOUR,
    * MINUTE or MONTH as array (for usage in templates a.s.o).
-   * 
+   *
    * @param string $field
    * @param array refrence $entries
    * @return boolean
    */
   public function fieldDefaults2array($field, &$entries = array()) {
   	global $dbCronjob;
-  	 
+
   	switch ($field) {
   	  case dbCronjob::FIELD_DAY_OF_MONTH:
   	  	$entries = $dbCronjob->getDay_of_month_array();
@@ -344,7 +344,7 @@ class cronjobInterface {
   	}
   	return true;
   } /// fieldDefaults2array()
-  
+
   /**
    * Get the desired configuration $key and returns the value in the correct
    * data format.
@@ -368,18 +368,18 @@ class cronjobInterface {
     global $dbCronjobConfig;
     return $dbCronjobConfig->setValueByName($value, $key);
   } // setCronjobConfigValue()
-  
+
   /**
-   * Return an array $cronjobs with all cronjobs of a status desired in the 
+   * Return an array $cronjobs with all cronjobs of a status desired in the
    * $status_array
-   * 
+   *
    * @param array $status_array - possible: ACTICE, LOCKED, DELETED
    * @param array reference $cronjobs
    * @return boolean
    */
   public function getCronjobsByStatus(&$cronjobs=array(), $status_array=array(dbCronjob::STATUS_ACTIVE, dbCronjob::STATUS_LOCKED)) {
   	global $dbCronjob;
-  	
+
   	$SQL = "SELECT * FROM ".$dbCronjob->getTableName()." WHERE ";
   	$start = true;
   	foreach ($status_array as $status) {
@@ -398,11 +398,26 @@ class cronjobInterface {
   		$cronjob[dbCronjob::FIELD_MINUTE] = explode(',', $cronjob[dbCronjob::FIELD_MINUTE]);
   		$cronjob[dbCronjob::FIELD_MONTH] = explode(',', $cronjob[dbCronjob::FIELD_MONTH]);
   		$cronjob[dbCronjob::FIELD_DAY_OF_MONTH] = explode(',', $cronjob[dbCronjob::FIELD_DAY_OF_MONTH]);
-  		$cronjob[dbCronjob::FIELD_DAY_OF_WEEK] = explode(',', $cronjob[dbCronjob::FIELD_DAY_OF_WEEK]);  		
+  		$cronjob[dbCronjob::FIELD_DAY_OF_WEEK] = explode(',', $cronjob[dbCronjob::FIELD_DAY_OF_WEEK]);
   		$dummy[] = $cronjob;
   	}
   	$cronjobs = $dummy;
   	return true;
   } // getCronjobsByStatus()
+
+  public function getCronjobProtocol(&$protocol_array, $limit=100) {
+    global $dbCronjobLog;
+
+    $SQL = sprintf("SELECT * FROM %s ORDER BY `%s` DESC LIMIT %d",
+        $dbCronjobLog->getTableName(),
+        dbCronjobLog::FIELD_TIMESTAMP,
+        $limit);
+    $protocol_array = array();
+    if (!$dbCronjobLog->sqlExec($SQL, $protocol_array)) {
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbCronjobLog->getError()));
+      return false;
+    }
+    return true;
+  } // getCronjobProtocol()
 
 } // class CronjobInterface

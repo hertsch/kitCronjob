@@ -75,6 +75,8 @@ class dbCronjobConfig extends dbConnectLE {
   const CFG_CRONJOB_ACTIVE = 'cfg_cronjob_active';
   const CFG_USE_SSL = 'cfg_use_ssl';
   const CFG_CRONJOB_NAME_MINIMUM_LENGTH = 'cfg_cronjob_name_minimum_length';
+  const CFG_USE_TIMEZONE = 'cfg_timezone';
+  const CFG_PHP_EXEC = 'cfg_php_exec';
 
   public $config_array = array(
       array(
@@ -104,7 +106,21 @@ class dbCronjobConfig extends dbConnectLE {
   				'type' => self::TYPE_INTEGER,
   				'value' => 6,
   				'hint' => 'HINT_CFG_CRONJOB_NAME_MINIMUM_LENGTH'
-  				)
+  				),
+      array(
+          'label' => 'Timezone',
+          'name' => self::CFG_USE_TIMEZONE,
+          'type' => self::TYPE_STRING,
+          'value' => 'Europe/Berlin',
+          'hint' => 'Specify the <a href="http://www.php.net/manual/en/timezones.php" target="_blank">timezone</a> kitCronjob should use.'
+          ),
+      array(
+          'label' => 'PHP exec',
+          'name' => self::CFG_PHP_EXEC,
+          'type' => self::TYPE_STRING,
+          'value' => '/usr/bin/php',
+          'hint' => 'The server path to the executable PHP command interpreter.'
+          )
   );
 
   /**
@@ -123,7 +139,7 @@ class dbCronjobConfig extends dbConnectLE {
     $this->addFieldDefinition(self::FIELD_TYPE, "ENUM('UNDEFINED','ARRAY','BOOLEAN','EMAIL','FLOAT','INTEGER','LIST','PATH','STRING','URL') NOT NULL DEFAULT 'UNDEFINED'"); //"TINYINT UNSIGNED NOT NULL DEFAULT '" . self::TYPE_UNDEFINED . "'");
     $this->addFieldDefinition(self::FIELD_VALUE, "TEXT", false, false, true);
     $this->addFieldDefinition(self::FIELD_LABEL, "VARCHAR(64) NOT NULL DEFAULT '- undefined -'");
-    $this->addFieldDefinition(self::FIELD_HINT, "TEXT");
+    $this->addFieldDefinition(self::FIELD_HINT, "TEXT", false, false, true);
     $this->addFieldDefinition(self::FIELD_STATUS, "ENUM('ACTIVE','LOCKED','DELETED') NOT NULL DEFAULT 'ACTIVE'");
     $this->addFieldDefinition(self::FIELD_TIMESTAMP, "TIMESTAMP");
     $this->setIndexFields(array(self::FIELD_NAME));
@@ -465,7 +481,7 @@ class dbCronjob extends dbConnectLE {
   const STATUS_ACTIVE = 'ACTIVE';
   const STATUS_LOCKED = 'LOCKED';
   const STATUS_DELETED = 'DELETED';
-  
+
   private static $minute_array = array(0,5,10,15,20,25,30,35,40,45,50,55);
   private static $hour_array = array(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23);
   private static $day_of_month_array = array(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31);
@@ -491,7 +507,7 @@ class dbCronjob extends dbConnectLE {
     $this->addFieldDefinition(self::FIELD_ID, "INT(11) NOT NULL AUTO_INCREMENT", true);
     $this->addFieldDefinition(self::FIELD_NAME, "VARCHAR(64) NOT NULL DEFAULT ''");
     $this->addFieldDefinition(self::FIELD_DESCRIPTION, "TEXT");
-    $this->addFieldDefinition(self::FIELD_MINUTE, "VARCHAR(255) NOT NULL DEFAULT '' DEFAULT '0'");
+    $this->addFieldDefinition(self::FIELD_MINUTE, "VARCHAR(255) NOT NULL DEFAULT '0'");
     $this->addFieldDefinition(self::FIELD_HOUR, "VARCHAR(255) NOT NULL DEFAULT '0'");
     $this->addFieldDefinition(self::FIELD_DAY_OF_MONTH, "VARCHAR(255) NOT NULL DEFAULT '1'");
     $this->addFieldDefinition(self::FIELD_DAY_OF_WEEK, "VARCHAR(255) NOT NULL DEFAULT 'Sunday'");
@@ -514,7 +530,7 @@ class dbCronjob extends dbConnectLE {
       }
     }
   } // __construct()
-  
+
   /**
    * This function reads entries from type definition of ENUM() fields and
    * return an array with the values of the ENUM() string.
@@ -545,7 +561,7 @@ class dbCronjob extends dbConnectLE {
   	$entries = explode(",", str_replace("'", "", $enum[1]));
   	return true;
   } // enumColumn2array()
-  
+
 
   /**
 	 * @return the $minute_array
@@ -581,5 +597,50 @@ class dbCronjob extends dbConnectLE {
 	public static function getMonth_array() {
 		return dbCronjob::$month_array;
 	}
-  
-} // class CronjobList
+
+} // class dbCronjob
+
+class dbCronjobLog extends dbConnectLE {
+
+  const FIELD_ID = 'log_id';
+  const FIELD_STATUS = 'log_status';
+  const FIELD_MESSAGE = 'log_message';
+  const FIELD_CRONJOB_ID = 'cronjob_id';
+  const FIELD_CRONJOB_NAME = 'cronjob_name';
+  const FIELD_CRONJOB_STATUS = 'cronjob_status';
+  const FIELD_CRONJOB_RUN = 'cronjob_run';
+  const FIELD_TIMESTAMP = 'log_timestamp';
+
+  private $createTable = false;
+
+  /**
+   * Constructor
+   *
+   * @param $createTable boolean
+   */
+  public function __construct($createTable = false) {
+    $this->createTable = $createTable;
+    parent::__construct();
+    $this->setTableName('mod_kit_cj_log');
+    $this->addFieldDefinition(self::FIELD_ID, "INT(11) NOT NULL AUTO_INCREMENT", true);
+    $this->addFieldDefinition(self::FIELD_STATUS, "ENUM('OK','INACTIVE','ERROR') NOT NULL DEFAULT 'OK'");
+    $this->addFieldDefinition(self::FIELD_MESSAGE, "TEXT");
+    $this->addFieldDefinition(self::FIELD_CRONJOB_ID, "INT(11) NOT NULL DEFAULT '-1'");
+    $this->addFieldDefinition(self::FIELD_CRONJOB_NAME, "VARCHAR(64) NOT NULL DEFAULT ''");
+    $this->addFieldDefinition(self::FIELD_CRONJOB_STATUS, "TEXT");
+    $this->addFieldDefinition(self::FIELD_CRONJOB_RUN, "DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00'");
+    $this->addFieldDefinition(self::FIELD_TIMESTAMP, "TIMESTAMP");
+    $this->checkFieldDefinitions();
+    // set timezone
+    date_default_timezone_set(CFG_TIME_ZONE);
+    // Tabelle erstellen
+    if ($this->createTable) {
+      if (!$this->sqlTableExists()) {
+        if (!$this->sqlCreateTable()) {
+          $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $this->getError()));
+        }
+      }
+    }
+  } // __construct()
+
+} // class dbCronjobLog

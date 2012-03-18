@@ -54,6 +54,7 @@ class cronjobBackend {
   const ACTION_EDIT = 'edt';
   const ACTION_EDIT_CHECK = 'edtc';
   const ACTION_LANGUAGE = 'lng';
+  const ACTION_PROTOCOL = 'prt';
 
   private $page_link = '';
   private $img_url = '';
@@ -72,8 +73,9 @@ class cronjobBackend {
     $this->lang = $lang;
     // don't translate the Tab Strings here - this will be done in the template!
     $this->tab_navigation_array = array(
-        self::ACTION_CRONJOBS => 'Cronjobs',
-        self::ACTION_EDIT => 'Edit',
+        self::ACTION_CRONJOBS => 'Cronjob list',
+        self::ACTION_EDIT => 'Cronjob edit',
+        self::ACTION_PROTOCOL => 'Protocol',
         self::ACTION_CONFIG => 'Settings',
         self::ACTION_LANGUAGE => 'Languages',
         self::ACTION_ABOUT => 'About');
@@ -246,6 +248,9 @@ class cronjobBackend {
       $i18n_dialog = new I18n_Dialog('kit_cronjob');
       $this->show(self::ACTION_LANGUAGE, $i18n_dialog->action());
       break;
+    case self::ACTION_PROTOCOL:
+      $this->show(self::ACTION_PROTOCOL, $this->dlgProtocol());
+      break;
     case self::ACTION_CRONJOBS:
       $this->show(self::ACTION_CRONJOBS, $this->dlgCronjobs());
       break;
@@ -329,11 +334,13 @@ class cronjobBackend {
           'field' => $entry[dbCronjobConfig::FIELD_NAME]);
     }
     $data = array(
-        'form' => array('name' => 'cronjob_cfg', 'action' => $this->page_link),
+        'form' => array(
+            'name' => 'cronjob_cfg',
+            'action' => $this->page_link),
         'action' => array(
             'name' => self::REQUEST_ACTION,
             'value' => self::ACTION_CONFIG_CHECK),
-        'items' => array(
+        'request_items' => array(
             'name' => self::REQUEST_ITEMS,
             'value' => implode(",", $count)),
         'message' => array(
@@ -564,8 +571,7 @@ class cronjobBackend {
         case cronjobInterface::CRONJOB_DAY_OF_MONTH:
         case cronjobInterface::CRONJOB_DAY_OF_WEEK:
         case cronjobInterface::CRONJOB_MONTH:
-        case cronjobInterface::CRONJOB_STATUS:
-        // implode array values
+          // implode array values
           if (is_array($_REQUEST[$key])) {
             $data[$key] = implode(',', $_REQUEST[$key]);
           } else {
@@ -621,13 +627,13 @@ class cronjobBackend {
 
   protected function dlgCronjobs() {
   	global $cronjobInterface;
-  	
+
   	$cronjobs = array();
   	if (!$cronjobInterface->getCronjobsByStatus($cronjobs)) {
   		$this->setError(sprintf('[%s .- %s] %s', __METHOD__, __LINE__, $cronjobInterface->getError()));
   		return false;
   	}
-    
+
   	$items = array();
   	$options_minute = array();
   	$options_hour = array();
@@ -639,7 +645,7 @@ class cronjobBackend {
   	$cronjobInterface->fieldDefaults2array(cronjobInterface::CRONJOB_DAY_OF_MONTH, $options_day_of_month);
   	$cronjobInterface->fieldDefaults2array(cronjobInterface::CRONJOB_DAY_OF_WEEK, $options_day_of_week);
   	$cronjobInterface->fieldDefaults2array(cronjobInterface::CRONJOB_MONTH, $options_month);
-  	 
+
   	foreach ($cronjobs as $cronjob) {
   		$items[$cronjob[cronjobInterface::CRONJOB_ID]] = array(
   				'id' => array(
@@ -696,7 +702,7 @@ class cronjobBackend {
   				'last_status' => array(
   						'name' => cronjobInterface::CRONJOB_LAST_STATUS,
   						'value' => $cronjob[cronjobInterface::CRONJOB_LAST_STATUS]
-  				    ),  				
+  				    ),
   				'status' => array(
   						'name' => cronjobInterface::CRONJOB_STATUS,
   						'value' => $cronjob[cronjobInterface::CRONJOB_STATUS],
@@ -712,14 +718,40 @@ class cronjobBackend {
   								self::REQUEST_ACTION => self::ACTION_EDIT,
   								cronjobInterface::CRONJOB_ID => $cronjob[cronjobInterface::CRONJOB_ID]
   								))),
-  						)   				
+  						)
   				);
   	}
-  	
+
   	$data = array(
+  	    'message' => array(
+  	        'active' => (int) $this->isMessage(),
+  	        'text' => $this->getMessage()
+  	        ),
   			'cronjobs' => $items
   			);
   	return $this->getTemplate('list.lte', $data);
   } // dlgCronjob()
+
+  protected function dlgProtocol() {
+    global $cronjobInterface;
+
+    $protocol = array();
+    if (!$cronjobInterface->getCronjobProtocol($protocol)) {
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $cronjobInterface->getError()));
+      return false;
+    }
+    echo "<pre>";
+    print_r($protocol);
+    echo "</pre>";
+
+    $this->setMessage(__METHOD__);
+    $data = array(
+        'message' => array(
+  	        'active' => (int) $this->isMessage(),
+  	        'text' => $this->getMessage()
+  	        ),
+  			);
+    return $this->getTemplate('protocol.lte', $data);
+  } // dlgProtocol()
 
 } // class cronjobBackend

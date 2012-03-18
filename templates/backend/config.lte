@@ -14,10 +14,10 @@
  *
  * Use {dump()} to get a list of all in this template available variables!
  *}
-<div id="cj_config">
+<div id="cronjob_config">
   <form name="{$form.name}" action="{$form.action}" method="post">
     <input type="hidden" name="{$action.name}" value="{$action.value}" />
-    <input type="hidden" name="{$items.name}" value="{$items.value}" />
+    <input type="hidden" name="{$request_items.name}" value="{$request_items.value}" />
     <h2>{I18n('Settings')}</h2>
     <div class="{if count_characters($message.text) > 0}message{else}intro{/if}">
       {if count_characters($message.text) > 0}
@@ -36,6 +36,11 @@
       <div class="cjc_value_value">
         {if $item.type == 'LIST'}
         <textarea name="{$item.name}">{$item.value}</textarea> 
+        {elseif $item.type == 'BOOLEAN'}
+        <select name="{$item.name}">
+          <option value="1"{if $item.value == '1'} selected="selected"{/if}>{I18n('Yes')}</option>
+          <option value="0"{if $item.value == '0'} selected="selected"{/if}>{I18n('No')}</option>
+        </select>
         {else}
         <input type="text" name="{$item.name}" value="{$item.value}" />
         {/if}

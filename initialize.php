@@ -76,4 +76,5 @@ if (!is_object($dbCronjobConfig)) $dbCronjobConfig = new dbCronjobConfig();
 global $dbCronjob;
 if (!is_object($dbCronjob)) $dbCronjob = new dbCronjob();
 
-
+global $dbCronjobLog;
+if (!is_object($dbCronjobLog)) $dbCronjobLog = new dbCronjobLog();

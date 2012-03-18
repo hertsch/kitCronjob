@@ -1,0 +1,26 @@
+{*
+ * kitCronjob
+ *
+ * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @link http://phpmanufaktur.de
+ * @copyright 2012
+ * @license http://www.gnu.org/licenses/gpl.html GNU Public License (GPL)
+ * @version $Id$
+ *
+ * Please consult the Dwoo Documentation & WIKI to get further informations 
+ * and hints for the usage of the Dwoo template engine.
+ *
+ * @link http://wiki.dwoo.org/
+ *
+ * Use {dump()} to get a list of all in this template available variables!
+ *}
+<div id="cronjob_protocol">
+  <h2>{I18n('Protocol')}</h2>
+  <div class="{if $message.active == 1}message{else}intro{/if}">
+    {if $message.active == 1}
+      {$message.text}
+    {else}
+      {I18n("Here you see the status of the last executed cronjobs.")}
+    {/if}
+  </div>
+</div>
