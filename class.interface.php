@@ -64,6 +64,11 @@ class cronjobInterface {
   const CFG_CRONJOB_ACTIVE = dbCronjobConfig::CFG_CRONJOB_ACTIVE;
   const CFG_USE_SSL = dbCronjobConfig::CFG_USE_SSL;
   const CFG_CRONJOB_NAME_MINIMUM_LENGTH = dbCronjobConfig::CFG_CRONJOB_NAME_MINIMUM_LENGTH;
+  const CFG_USE_TIMEZONE = dbCronjobConfig::CFG_USE_TIMEZONE;
+  const CFG_PHP_EXEC = dbCronjobConfig::CFG_PHP_EXEC;
+  const CFG_LOG_LIST_LIMIT = dbCronjobConfig::CFG_LOG_LIST_LIMIT;
+  const CFG_LOG_SHOW_NO_LOAD = dbCronjobConfig::CFG_LOG_SHOW_NO_LOAD;
+  const CFG_LOG_TABLE_LIMIT = dbCronjobConfig::CFG_LOG_TABLE_LIMIT;
 
   private $field_array = array(
       self::CRONJOB_ID => -1,
@@ -405,13 +410,23 @@ class cronjobInterface {
   	return true;
   } // getCronjobsByStatus()
 
-  public function getCronjobProtocol(&$protocol_array, $limit=100) {
+  public function getCronjobProtocol(&$protocol_array, $limit=100, $show_no_load=false) {
     global $dbCronjobLog;
 
-    $SQL = sprintf("SELECT * FROM %s ORDER BY `%s` DESC LIMIT %d",
-        $dbCronjobLog->getTableName(),
-        dbCronjobLog::FIELD_TIMESTAMP,
-        $limit);
+    if ($show_no_load) {
+      $SQL = sprintf("SELECT * FROM %s ORDER BY `%s` DESC LIMIT %d",
+          $dbCronjobLog->getTableName(),
+          dbCronjobLog::FIELD_TIMESTAMP,
+          $limit);
+    }
+    else {
+      $SQL = sprintf("SELECT * FROM %s WHERE NOT (`%s`='OK' AND `%s`='-1') ORDER BY `%s` DESC LIMIT %d",
+          $dbCronjobLog->getTableName(),
+          dbCronjobLog::FIELD_STATUS,
+          dbCronjobLog::FIELD_CRONJOB_ID,
+          dbCronjobLog::FIELD_TIMESTAMP,
+          $limit);
+    }
     $protocol_array = array();
     if (!$dbCronjobLog->sqlExec($SQL, $protocol_array)) {
       $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbCronjobLog->getError()));
@@ -419,5 +434,39 @@ class cronjobInterface {
     }
     return true;
   } // getCronjobProtocol()
+
+  /**
+   * Shrink the protocol table to the limit of records specified in the settings
+   *
+   * @return boolean
+   */
+  public function shrinkProtocol() {
+    global $dbCronjobLog;
+
+    $SQL = sprintf("SELECT MAX(`%s`) FROM %s",
+        dbCronjobLog::FIELD_ID,
+        $dbCronjobLog->getTableName());
+    $result = array();
+    if (!$dbCronjobLog->sqlExec($SQL, $result)) {
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbCronjobLog->getError()));
+      return false;
+    }
+    if (count($result) > 0) {
+      $max = (int) $result[0][sprintf('MAX(`%s`)', dbCronjobLog::FIELD_ID)];
+      $limit = $this->getCronjobConfigValue(self::CFG_LOG_TABLE_LIMIT);
+      $shrink = $max - $limit;
+      if ($shrink > 0) {
+        $SQL = sprintf("DELETE FROM %s WHERE `%s` < '%d'",
+          $dbCronjobLog->getTableName(),
+          dbCronjobLog::FIELD_ID,
+          $shrink);
+        if (!$dbCronjobLog->sqlExec($SQL, $result)) {
+          $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbCronjobLog->getError()));
+          return false;
+        }
+      }
+    }
+    return true;
+  } // shrinkProtocol()
 
 } // class CronjobInterface

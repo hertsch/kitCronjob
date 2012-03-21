@@ -727,25 +727,54 @@ class cronjobBackend {
   	        'active' => (int) $this->isMessage(),
   	        'text' => $this->getMessage()
   	        ),
-  			'cronjobs' => $items
+  			'cronjob' => array(
+  			    'items' => $items,
+  			    'count' => count($items)
+  			    )
   			);
   	return $this->getTemplate('list.lte', $data);
   } // dlgCronjob()
 
+  /**
+   * Show the kitCronjob protocol
+   *
+   * @return string dialog
+   */
   protected function dlgProtocol() {
     global $cronjobInterface;
 
-    $protocol = array();
-    if (!$cronjobInterface->getCronjobProtocol($protocol)) {
+    if (!$cronjobInterface->shrinkProtocol()) {
       $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $cronjobInterface->getError()));
       return false;
     }
-    echo "<pre>";
-    print_r($protocol);
-    echo "</pre>";
+    // limit the entries of the protocol
+    $limit = $cronjobInterface->getCronjobConfigValue(cronjobInterface::CFG_LOG_LIST_LIMIT);
+    // suppress no-load entries in the protocol
+    $show_no_load = $cronjobInterface->getCronjobConfigValue(cronjobInterface::CFG_LOG_SHOW_NO_LOAD);
 
-    $this->setMessage(__METHOD__);
+    $protocol = array();
+    if (!$cronjobInterface->getCronjobProtocol($protocol, $limit, $show_no_load)) {
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $cronjobInterface->getError()));
+      return false;
+    }
+    if (count($protocol) > 0) {
+      $last_call = $protocol[0][dbCronjobLog::FIELD_TIMESTAMP];
+    }
+    else {
+      $last_call = 0;
+    }
+
+    $key = $cronjobInterface->getCronjobConfigValue(cronjobInterface::CFG_CRONJOB_KEY);
+
     $data = array(
+        'cronjob' => array(
+            'url' => sprintf('%s/modules/kitcronjob?key=%s', LEPTON_URL, $key)
+            ),
+        'protocol' => array(
+            'last_call' => $last_call,
+            'count' => count($protocol),
+            'entries' => $protocol,
+            ),
         'message' => array(
   	        'active' => (int) $this->isMessage(),
   	        'text' => $this->getMessage()

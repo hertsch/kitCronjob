@@ -19,8 +19,28 @@
   <div class="{if $message.active == 1}message{else}intro{/if}">
     {if $message.active == 1}
       {$message.text}
+    {elseif $protocol.count == 0}
+      {I18n('It seems that kitCronjob was never executed.<br />To get kitCronjob running please use a service like <b>cronjob.de</b> or use a cronjob service of your provider.<br />Configure the service out to call each 5 minutes kitCronjob with the following URL:<br><b>{{ url }}</b>', array(url=$cronjob.url))}
     {else}
       {I18n("Here you see the status of the last executed cronjobs.")}
     {/if}
   </div>
+  {foreach $protocol.entries entry}
+  <fieldset class="{if $entry.log_status == 'OK'}log_set_ok{elseif $entry.log_status == 'ERROR'}log_set_error{else}log_set_inactive{/if}">
+    <div class="log_id">{string_format($entry.log_id, '%05d')}</div>
+    <div class="log_label">{I18n('Timestamp')}</div>
+    <div class="log_value">{date_format($entry.log_timestamp, '%d.%m.%Y - %H:%M:%S')}</div>
+    <div class="log_clear"></div>
+    <div class="log_label">{I18n('Message')}</div>
+    <div class="log_value">{$entry.log_message}</div>
+    <div class="log_clear"></div>
+    {if $entry.cronjob_id > 0}
+    <div class="log_label">{I18n('Cronjob ID')}</div>
+    <div class="log_id">{string_format($entry.cronjob_id, '%05d')}</div>
+    <div class="log_label">{I18n('Cronjob name')}</div>
+    <div class="log_value">{$entry.cronjob_status}</div>
+    <div class="log_clear"></div>
+    {/if}
+  </fieldset>
+  {/foreach}
 </div>

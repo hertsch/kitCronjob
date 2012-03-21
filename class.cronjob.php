@@ -71,48 +71,53 @@ class dbCronjobConfig extends dbConnectLE {
 
   protected $lang = NULL;
 
+  // IMPORTANT: Define these const also in the class.interface.php!
+
   const CFG_CRONJOB_KEY = 'cfg_cronjob_key';
   const CFG_CRONJOB_ACTIVE = 'cfg_cronjob_active';
   const CFG_USE_SSL = 'cfg_use_ssl';
   const CFG_CRONJOB_NAME_MINIMUM_LENGTH = 'cfg_cronjob_name_minimum_length';
   const CFG_USE_TIMEZONE = 'cfg_timezone';
   const CFG_PHP_EXEC = 'cfg_php_exec';
+  const CFG_LOG_LIST_LIMIT = 'cfg_log_list_limit';
+  const CFG_LOG_SHOW_NO_LOAD = 'cfg_log_show_no_load';
+  const CFG_LOG_TABLE_LIMIT = 'cfg_log_table_limit';
 
   public $config_array = array(
       array(
-          'label' => 'LABEL_CFG_CRONJOB_KEY',
+          'label' => 'Cronjob, key',
           'name' => self::CFG_CRONJOB_KEY,
           'type' => self::TYPE_STRING,
           'value' => '',
-          'hint' => 'HINT_CFG_CRONJOB_KEY'
+          'hint' => 'To prevent kitCronjob from a non authorized access, the cronjob.php must be called with the parameter <b>key</b> and the value of this field.<br />Sample: <i>/modules/kit_cronjob/cronjob.php?key=01234567</i>.'
       ),
       array(
-          'label' => 'LABEL_CFG_CRONJOB_ACTIVE',
+          'label' => 'Cronjob, active',
           'name' => self::CFG_CRONJOB_ACTIVE,
           'type' => self::TYPE_BOOLEAN,
           'value' => 1,
-          'hint' => 'HINT_CFG_CRONJOB_ACTIVE'
+          'hint' => 'If you switch off kitCronjob it will no longer execute any cronjob.'
           ),
   		array(
-  				'label' => 'LABEL_CFG_USE_SSL',
+  				'label' => 'Use SSL',
   				'name' => self::CFG_USE_SSL,
   				'type' => self::TYPE_BOOLEAN,
-  				'value' => '1',
-  				'hint' => 'HINT_CFG_USE_SSL'
+  				'value' => '0',
+  				'hint' => 'If set to <i>Yes</i>, kitCronjob will try to execute any cronjob using the Secure Socket Layer (HTTPS) protocol instead of the standard protocol (HTTP).'
   				),
   		array(
-  				'label' => 'LABEL_CFG_CRONJOB_NAME_MINIMUM_LENGTH',
+  				'label' => 'Cronjob, name length',
   				'name' => self::CFG_CRONJOB_NAME_MINIMUM_LENGTH,
   				'type' => self::TYPE_INTEGER,
   				'value' => 6,
-  				'hint' => 'HINT_CFG_CRONJOB_NAME_MINIMUM_LENGTH'
+  				'hint' => 'The minimum length of a name for a cronjob, default is 6 characters.'
   				),
       array(
           'label' => 'Timezone',
           'name' => self::CFG_USE_TIMEZONE,
           'type' => self::TYPE_STRING,
           'value' => 'Europe/Berlin',
-          'hint' => 'Specify the <a href="http://www.php.net/manual/en/timezones.php" target="_blank">timezone</a> kitCronjob should use.'
+          'hint' => 'Specify the <a href="http://www.php.net/manual/en/timezones.php" target="_blank">timezone</a> kitCronjob should use, default is <i>Europe/Berlin</i>.'
           ),
       array(
           'label' => 'PHP exec',
@@ -120,6 +125,27 @@ class dbCronjobConfig extends dbConnectLE {
           'type' => self::TYPE_STRING,
           'value' => '/usr/bin/php',
           'hint' => 'The server path to the executable PHP command interpreter.'
+          ),
+      array(
+          'label' => 'Protocol, limit',
+          'name' => self::CFG_LOG_LIST_LIMIT,
+          'type' => self::TYPE_INTEGER,
+          'value' => 100,
+          'hint' => 'Limit the max. visible entries of the protocol to the number you enter here, default is <b>100</b>.'
+          ),
+      array(
+          'label' => 'Protocol, show no-load',
+          'name' => self::CFG_LOG_SHOW_NO_LOAD,
+          'type' => self::TYPE_BOOLEAN,
+          'value' => 0,
+          'hint' => 'If set to <i>No</i> no-load entries will be suppressed in the protocol view.'
+          ),
+      array(
+          'label' => 'Protocol, table limit',
+          'name' => self::CFG_LOG_TABLE_LIMIT,
+          'type' => self::TYPE_INTEGER,
+          'value' => 5000,
+          'hint' => 'Shrink the protocol table to the specified number of entries. This shrink process will be executed if you view the protocol.'
           )
   );
 
@@ -143,7 +169,7 @@ class dbCronjobConfig extends dbConnectLE {
     $this->addFieldDefinition(self::FIELD_STATUS, "ENUM('ACTIVE','LOCKED','DELETED') NOT NULL DEFAULT 'ACTIVE'");
     $this->addFieldDefinition(self::FIELD_TIMESTAMP, "TIMESTAMP");
     $this->setIndexFields(array(self::FIELD_NAME));
-    $this->setAllowedHTMLtags('<a><abbr><acronym><span>');
+    $this->setAllowedHTMLtags('<a><b><br><em><i><span><strong>');
     $this->checkFieldDefinitions();
     // Tabelle erstellen
     if ($this->createTable) {

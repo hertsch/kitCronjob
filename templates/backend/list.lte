@@ -19,11 +19,13 @@
   <div class="{if $message.active == 1}message{else}intro{/if}">
     {if $message.active == 1}
       {$message.text}
+    {elseif $cronjob.count == 0}
+      {I18n('There is no active cronjob. Please create a new cronjob using the tab "<b>Cronjob edit</b>".')}
     {else}
       {I18n('Please select the cronjob you wish to edit.')}
     {/if}
   </div>
-  {foreach $cronjobs cronjob}
+  {foreach $cronjob.items cronjob}
   <a href="{$cronjob.action.edit}" title="{I18n('Please click to edit this cronjob')}">
     <fieldset class="cl_fieldset">
       <legend>Cronjob: {$cronjob.name.value}</legend>

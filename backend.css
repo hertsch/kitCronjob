@@ -323,39 +323,41 @@ Cronjob list
 /*
 Cronjob Settings
 */
+.cjc_value_name,
 .cjc_header_name {
   float: left;
   width: 20%;
+}
+.cjc_header_name {
+  font-weight: bold;
+}
+.cjc_value_value,
+.cjc_header_value {
+  float: left;
+  width: 30%;
   font-weight: bold;
 }
 .cjc_header_value {
+  font-weight: bold;
+}
+.cjc_value_description,
+.cjc_header_description {
   float: left;
   width: 50%;
   font-weight: bold;
 }
 .cjc_header_description {
-  float: left;
-  width: 30%;
   font-weight: bold;
+}
+.cjc_value_description {
+  font-weight: normal;
+  font-size: smaller;
 }
 .cjc_clear {
   clear: both;
   height: 5px;
   margin: 0;
   padding: 0;
-}
-.cjc_value_name {
-  float: left;
-  width: 20%;
-}
-.cjc_value_value {
-  float: left;
-  width: 50%;
-}
-.cjc_value_description {
-  float: left;
-  width: 30%;
-  font-size: smaller;
 }
 .cjc_submit {
   padding: 10px 0 0 20%;
@@ -412,4 +414,35 @@ Cronjob Settings
 .cj_input {
   float: left;
   width: 450px;
+}
+/**
+Protocol
+**/
+fieldset.log_set_ok {
+  color: #363636;
+  background-color: #b5c2a5;
+}
+fieldset.log_set_error {
+  color: #fff;
+  background-color: #992826;
+}
+fieldset.log_set_inactive {
+  color: #363636;
+  background-color: #c9c9c9;
+}
+.log_id {
+  float: left;
+  width: 100px;
+  font-weight: bold;
+}
+.log_label {
+  float: left;
+  width: 100px;
+  font-style: italic;
+}
+.log_value {
+  float: left;
+}
+.log_clear {
+  clear: both;
 }
