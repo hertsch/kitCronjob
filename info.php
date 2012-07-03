@@ -4,12 +4,9 @@
  * kitCronjob
  *
  * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
- * @link http://phpmanufaktur.de
+ * @link https://addons.phpmanufaktur.de/kitCronjob
  * @copyright 2012 phpManufaktur by Ralf Hertsch
- * @license http://www.gnu.org/licenses/gpl.html GNU Public License (GPL)
- * @version $Id$
- *
- * FOR VERSION- AND RELEASE NOTES PLEASE LOOK AT INFO.TXT!
+ * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
  */
 
 // include class.secure.php to protect this file and the whole CMS!
@@ -39,10 +36,10 @@ $module_function = 'tool';
 $module_version = '0.10';
 $module_status = 'BETA';
 $module_platform = '2.8';
-$module_author = 'Projekt EM & Ralf Hertsch - Berlin (Germany)';
-$module_license = 'GNU Public License (GPL)';
-$module_description = 'Cronjobs for KeepInTouch (KIT)';
-$module_home = 'http://phpmanufaktur.de/kit_cronjob';
+$module_author = 'Ralf Hertsch, Berlin (Germany)';
+$module_license = 'MIT License (MIT)';
+$module_description = 'Create, execute and control cronjobs for WebsiteBaker or LEPTON CMS';
+$module_home = 'https://addons.phpmanufaktur.de/kitCronjob';
 $module_guid = 'BEDF5ED1-8C29-46A6-8A4C-0C71BBD5B80D';
 
 ?>
