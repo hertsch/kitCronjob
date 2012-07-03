@@ -21,12 +21,12 @@
   <div class="about_text">
     <div class="about_block">
       <h2>kitCronjob</h2>
-      <div class="about_release"><b>Release {$version}</b></div>
+      <div class="about_release"><b>Release {$release.number}</b></div>
       <div class="about_address"><b>phpManufaktur</b><br />Ralf Hertsch<br />Stockholmer Str. 31<br />13359 Berlin</div>
       <div class="about_contact">
         <a href="http://phpmanufaktur.de" target="_blank">http://phpManufaktur.de</a><br />
         <a href="mailto:ralf.hertsch@phpmanufaktur.de">ralf.hertsch@phpManufaktur.de</a><br />
-        {I18n('phone')} +49 (0)30 68813647
+        {translate('phone')} +49 (0)30 68813647
       </div>
     </div>
     <div class="about_manufaktur_logo">
@@ -51,7 +51,10 @@
   </div>
   <div class="kit_clear"></div>
   <div class="about_history">
-    <h2>{I18n('History')}:</h2>
-    <pre>{$release_notes}</pre>
+    {if $release.use_markdown == 1}
+      {$release.notes}
+    {else}
+      <pre>{$release.notes}</pre>
+    {/if}
   </div>  
 </div>

@@ -18,63 +18,63 @@
   <form name="{$form.name}" action="{$form.action}" method="post">
     <input type="hidden" name="{$action.name}" value="{$action.value}" />
     <input type="hidden" name="{$fields.cronjob_id.name}" value="{$fields.cronjob_id.value}" />
-    <h2>{I18n('Cronjobs')}</h2>
+    <h2>{translate('Cronjobs')}</h2>
     <div class="{if $message.active == 1}message{else}intro{/if}">
       {if $message.active == 1}
         {$message.text}
       {elseif $fields.cronjob_id.value > 0}
-        {I18n('Please edit the cronjob with the <strong>ID {{ id }}</strong> like you need it.', array(id=$fields.cronjob_id.value))}
+        {translate('Please edit the cronjob with the <strong>ID {{ id }}</strong> like you need it.', array(id=$fields.cronjob_id.value))}
       {else}
-        {I18n("Please create a new cronjob like you need it.")}
+        {translate("Please create a new cronjob like you need it.")}
       {/if}
     </div>
     
-    <div class="cj_label"><label for="{$fields.cronjob_name.name}">{I18n ('Name') }</label></div>
+    <div class="cj_label"><label for="{$fields.cronjob_name.name}">{translate('Name')}</label></div>
     <div class="cj_text"><input type="text" name="{$fields.cronjob_name.name}" value="{$fields.cronjob_name.value}" /></div> 
-    <div class="cj_hint">{I18n('HINT_NAME')}</div>
+    <div class="cj_hint">{translate('HINT_NAME')}</div>
     <div class="cj_clear"></div>
     
-    <div class="cj_label"><label for="{$fields.cronjob_description.name}">{I18n('Description')}</label></div>
+    <div class="cj_label"><label for="{$fields.cronjob_description.name}">{translate('Description')}</label></div>
     <div class="cj_textarea"><textarea name="{$fields.cronjob_description.name}">{$fields.cronjob_description.value}</textarea></div> 
-    <div class="cj_hint">{I18n('HINT_DESCRIPTION')}</div>
+    <div class="cj_hint">{translate('HINT_DESCRIPTION')}</div>
     <div class="cj_clear"></div>
     
     {if $fields.cronjob_id.value > 0}
-      <div class="cj_label"><label for="{$field.cronjob_status.name}">{I18n('Status')}</label></div>
-      <div class="cj_select">
+      <div class="cj_label"><label for="{$field.cronjob_status.name}">{translate('Status')}</label></div>
+      <div class="cj_status">
         {if $fields.cronjob_status.value == 'ACTIVE'}
-        <input type="radio" name="{$fields.cronjob_status.name}" value="ACTIVE" checked="checked" />&nbsp;<img src="{$img_url}/icons/active/16/ok.png" alt="{I18n('Active')}" />&nbsp;
+        <input type="radio" name="{$fields.cronjob_status.name}" value="ACTIVE" checked="checked" />&nbsp;<img src="{$img_url}/active/16/ok.png" alt="{translate('Active')}" />&nbsp;
         {else}
-        <input type="radio" name="{$fields.cronjob_status.name}" value="ACTIVE" />&nbsp;<img src="{$img_url}/icons/inactive/16/ok.png" alt="{I18n('Active')}" />&nbsp;
+        <input type="radio" name="{$fields.cronjob_status.name}" value="ACTIVE" />&nbsp;<img src="{$img_url}/inactive/16/ok.png" alt="{translate('Active')}" />&nbsp;
         {/if}
-        {I18n('Active')}
+        {translate('Active')}
         {if $fields.cronjob_status.value == 'LOCKED'}
-        <input type="radio" name="{$fields.cronjob_status.name}" value="LOCKED" checked="checked" />&nbsp;<img src="{$img_url}/icons/active/16/lock.png" alt="{I18n('Locked')}" />&nbsp;
+        <input type="radio" name="{$fields.cronjob_status.name}" value="LOCKED" checked="checked" />&nbsp;<img src="{$img_url}/active/16/lock.png" alt="{translate('Locked')}" />&nbsp;
         {else}
-        <input type="radio" name="{$fields.cronjob_status.name}" value="LOCKED" />&nbsp;<img src="{$img_url}/icons/inactive/16/lock.png" alt="{I18n('Locked')}" />&nbsp;
+        <input type="radio" name="{$fields.cronjob_status.name}" value="LOCKED" />&nbsp;<img src="{$img_url}/inactive/16/lock.png" alt="{translate('Locked')}" />&nbsp;
         {/if}
-        {I18n('Locked')}
+        {translate('Locked')}
         {if $fields.cronjob_status.value == 'DELETED'}
-        <input type="radio" name="{$fields.cronjob_status.name}" value="DELETED" checked="checked" />&nbsp;<img src="{$img_url}/icons/active/16/trash.png" alt="{I18n('Deleted')}" />&nbsp;
+        <input type="radio" name="{$fields.cronjob_status.name}" value="DELETED" checked="checked" />&nbsp;<img src="{$img_url}/active/16/trash.png" alt="{translate('Deleted')}" />&nbsp;
         {else}
-        <input type="radio" name="{$fields.cronjob_status.name}" value="DELETED" />&nbsp;<img src="{$img_url}/icons/inactive/16/trash.png" alt="{I18n('Deleted')}" />&nbsp;
+        <input type="radio" name="{$fields.cronjob_status.name}" value="DELETED" />&nbsp;<img src="{$img_url}/inactive/16/trash.png" alt="{translate('Deleted')}" />&nbsp;
         {/if}
-        {I18n('Deleted')}
+        {translate('Deleted')}
       </div>
-      <div class="cj_hint">{I18n('HINT_STATUS')}</div>
+      <div class="cj_hint">{translate('HINT_STATUS')}</div>
     {/if}
     <div class="cj_clear"></div>
     
     <div class="cj_label">&nbsp;</div>
-    <div class="cj_2_digit_header"><label for="{$fields.cronjob_hour.name}">{I18n('Hours')}</label></div>
-    <div class="cj_2_digit_header"><label for="{$fields.cronjob_minute.name}">{I18n('Minutes')}</label></div>
-    <div class="cj_2_digit_header"><label for="{$fields.cronjob_day_of_month.name}">{I18n('Days')}</label></div>
-    <div class="cj_day_digit_header"><label for="{$fields.cronjob_day_of_week.name}">{I18n('Weekdays')}</label></div>
-    <div class="cj_month_digit_header"><label for="{$fields.cronjob_month.name}">{I18n('Month')}</label></div>
+    <div class="cj_2_digit_header"><label for="{$fields.cronjob_hour.name}">{translate('Hours')}</label></div>
+    <div class="cj_2_digit_header"><label for="{$fields.cronjob_minute.name}">{translate('Minutes')}</label></div>
+    <div class="cj_2_digit_header"><label for="{$fields.cronjob_day_of_month.name}">{translate('Days')}</label></div>
+    <div class="cj_day_digit_header"><label for="{$fields.cronjob_day_of_week.name}">{translate('Weekdays')}</label></div>
+    <div class="cj_month_digit_header"><label for="{$fields.cronjob_month.name}">{translate('Months')}</label></div>
     <div class="cj_hint">&nbsp;</div>
     <div class="cj_clear"></div>
     
-    <div class="cj_label">{I18n('Define cronjob')}</div>
+    <div class="cj_label">{translate('Define cronjob')}</div>
     <div class="cj_2_digit">
       <select id="{$fields.cronjob_hour.name}" name="{$fields.cronjob_hour.name}[]" size="12" multiple="multiple">
         {foreach $fields.cronjob_hour.options option}
@@ -99,61 +99,61 @@
     <div class="cj_day_digit">
       <select id="{$fields.cronjob_day_of_week.name}" name="{$fields.cronjob_day_of_week.name}[]" size="12" multiple="multiple">
         {foreach $fields.cronjob_day_of_week.options option}
-          <option value="{$option}"{foreach $fields.cronjob_day_of_week.value value}{if $value == $option}selected="selected"{/if}{/foreach}>{I18n($option)}</option>
+          <option value="{$option}"{foreach $fields.cronjob_day_of_week.value value}{if $value == $option}selected="selected"{/if}{/foreach}>{translate($option)}</option>
         {/foreach}
       </select>
     </div>
     <div class="cj_month_digit">
       <select id="{$fields.cronjob_month.name}" name="{$fields.cronjob_month.name}[]" size="12" multiple="multiple">
         {foreach $fields.cronjob_month.options option}
-          <option value="{$option}"{foreach $fields.cronjob_month.value value}{if $value == $option}selected="selected"{/if}{/foreach}>{I18n($option)}</option>
+          <option value="{$option}"{foreach $fields.cronjob_month.value value}{if $value == $option}selected="selected"{/if}{/foreach}>{translate($option)}</option>
         {/foreach}
       </select>
     </div>
-    <div class="cj_hint">{I18n('HINT_CRONJOB')}</div>
+    <div class="cj_hint">{translate('HINT_CRONJOB')}</div>
     <div class="cj_clear"></div>
     
-    <div class="cj_label">{I18n('Cronjob preselect')}</div>
+    <div class="cj_label">{translate('Cronjob preselect')}</div>
     <div class="cj_input">
       <ul>
-        <li><a href="javascript:select_each_5_minutes()">{I18n('Execute  cronjob each 5 minutes')}</a></li>
-        <li><a href="javascript:select_each_15_minutes()">{I18n('Execute cronjob each 15 minutes')}</a></li>
-        <li><a href="javascript:select_each_30_minutes()">{I18n('Execute cronjob each 30 minutes')}</a></li>
-        <li><a href="javascript:select_daily_0630()">{I18n("Execute cronjob daily at 06:30 o'clock.")}</a></li>
-        <li><a href="javascript:select_each_monday_2315()">{I18n("Execute cronjob each monday at 23:15 o'clock")}</a></li>
-        <li><a href="javascript:select_february_07_1220()">{I18n("Execute cronjob at february, 7 at 12:20 o'clock")}</a></li>
+        <li><a href="javascript:select_each_5_minutes()">{translate('Execute cronjob each 5 minutes')}</a></li>
+        <li><a href="javascript:select_each_15_minutes()">{translate('Execute cronjob each 15 minutes')}</a></li>
+        <li><a href="javascript:select_each_30_minutes()">{translate('Execute cronjob each 30 minutes')}</a></li>
+        <li><a href="javascript:select_daily_0630()">{translate("Execute cronjob daily at 06:30 o'clock.")}</a></li>
+        <li><a href="javascript:select_each_monday_2315()">{translate("Execute cronjob each monday at 23:15 o'clock")}</a></li>
+        <li><a href="javascript:select_february_07_1220()">{translate("Execute cronjob at february, 7 at 12:20 o'clock")}</a></li>
       </ul>
     </div>
-    <div class="cj_hint">{I18n('HINT_CRONJOB_SAMPLES')}</div>
+    <div class="cj_hint">{translate('HINT_CRONJOB_SAMPLES')}</div>
     <div class="cj_clear"></div>
     
-    <div class="cj_label"><label for="{$fields.cronjob_command.name}">{I18n('Command')}</label></div>
+    <div class="cj_label"><label for="{$fields.cronjob_command.name}">{translate('Command')}</label></div>
     <div class="cj_input">
       <input type="text" name="{$fields.cronjob_command.name}" value="{$fields.cronjob_command.value}" />
     </div>
-    <div class="cj_hint">{I18n('HINT_COMMAND')}</div>
+    <div class="cj_hint">{translate('HINT_COMMAND')}</div>
     <div class="cj_clear"></div>
     
     {if $fields.cronjob_id.value > 0}
-      <div class="cj_label">{I18n('Last run')}</div>
-      <div class="cj_info" colspan="5">{$fields.cronjob_last_run.formatted}</div>
-      <div class="cj_hint">{I18n('HINT_LAST_RUN')}</div>
+      <div class="cj_label">{translate('Last run')}</div>
+      <div class="cj_info">{$fields.cronjob_last_run.formatted}</div>
+      <div class="cj_hint">{translate('HINT_LAST_RUN')}</div>
       <div class="cj_clear"></div>
 
-      <div class="cj_label">{I18n('Last status')}</div>
-      <div class="cj_info" colspan="5">{$fields.cronjob_last_status.value}</div>
-      <div class="cj_hint">{I18n('HINT_LAST_STATUS')}</div>
+      <div class="cj_label">{translate('Last status')}</div>
+      <div class="cj_info">{$fields.cronjob_last_status.value}</div>
+      <div class="cj_hint">{translate('HINT_LAST_STATUS')}</div>
       <div class="cj_clear"></div>
 
-      <div class="cj_label">{I18n('Next run')}</div>
-      <div class="cj_info" colspan="5">{$fields.cronjob_next_run.formatted}</div>
-      <div class="cj_hint">{I18n('HINT_NEXT_RUN')}</div>
+      <div class="cj_label">{translate('Next run')}</div>
+      <div class="cj_info">{$fields.cronjob_next_run.formatted}</div>
+      <div class="cj_hint">{translate('HINT_NEXT_RUN')}</div>
       <div class="cj_clear"></div>
     {/if}
     <div class="cj_label">&nbsp;</div>
     <div class="cj_submit">
-      <input type="submit" value="{I18n('OK')}" />&nbsp;
-      <input type="button" value="{I18n('Abort')}" onclick="javascript: window.location = '{$form.action}'; return false;" />
+      <input type="submit" value="{translate('OK')}" />&nbsp;
+      <input type="button" value="{translate('Abort')}" onclick="javascript: window.location = '{$form.action}'; return false;" />
     </div>
   </form>
 </div>

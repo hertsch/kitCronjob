@@ -15,70 +15,71 @@
  * Use {dump()} to get a list of all in this template available variables!
  *}
 <div id="cronjob_list">
-  <h2>{I18n('Cronjob list')}</h2>
+  <h2>{translate('Cronjob list')}</h2>
   <div class="{if $message.active == 1}message{else}intro{/if}">
     {if $message.active == 1}
       {$message.text}
     {elseif $cronjob.count == 0}
-      {I18n('There is no active cronjob. Please create a new cronjob using the tab "<b>Cronjob edit</b>".')}
+      {translate('There is no active cronjob. Please create a new cronjob using the tab "<b>Cronjob edit</b>".')}
     {else}
-      {I18n('Please select the cronjob you wish to edit.')}
+      {translate('Please select the cronjob you wish to edit.')}
     {/if}
   </div>
   {foreach $cronjob.items cronjob}
-  <a href="{$cronjob.action.edit}" title="{I18n('Please click to edit this cronjob')}">
+  <a href="{$cronjob.action.edit}" title="{translate('Please click to edit this cronjob')}">
     <fieldset class="cl_fieldset">
       <legend>Cronjob: {$cronjob.name.value}</legend>
-      <div class="cl_label cl_id">{I18n('ID')}</div>
+      <div class="cl_label cl_id">{translate('ID')}</div>
       <div class="cl_value cl_id">{string_format($cronjob.id.value '%05d')}</div>
-      <div class="cl_label cl_name">{I18n('Name')}</div>
+      <div class="kit_clear"></div>
+      <div class="cl_label cl_name">{translate('Name')}</div>
       <div class="cl_value cl_name">{$cronjob.name.value}</div>
       <div class="kit_clear"></div>
-      <div class="cl_label cl_description">{I18n('Description')}</div>
+      <div class="cl_label cl_description">{translate('Description')}</div>
       <div class="cl_value cl_description">{$cronjob.description.value}</div>
       <div class="kit_clear"></div>
-      <div class="cl_label cl_minutes">{I18n('Minutes')}</div>
+      <div class="cl_label cl_minutes">{translate('Minutes')}</div>
       <div class="cl_value cl_minutes">
         {foreach $cronjob.minutes.options option}
         <div class="cl_digit_02{foreach $cronjob.minutes.values value}{if $value == $option} digit_active{/if}{/foreach}">{string_format($option, '%02d')}</div>
         {/foreach}
       </div>
       <div class="kit_clear"></div>
-      <div class="cl_label cl_hours">{I18n('Hours')}</div>
+      <div class="cl_label cl_hours">{translate('Hours')}</div>
       <div class="cl_value cl_hours">
         {foreach $cronjob.hours.options option}
         <div class="cl_digit_02{foreach $cronjob.hours.values value}{if $value == $option} digit_active{/if}{/foreach}">{string_format($option, '%02d')}</div>
         {/foreach}
       </div>
       <div class="kit_clear"></div>
-      <div class="cl_label cl_days_of_month">{I18n('Days of month')}</div>
+      <div class="cl_label cl_days_of_month">{translate('Days of month')}</div>
       <div class="cl_value cl_days_of_month">
         {foreach $cronjob.days_of_month.options option}
         <div class="cl_digit_02{foreach $cronjob.days_of_month.values value}{if $value == $option} digit_active{/if}{/foreach}">{string_format($option, '%02d')}</div>
         {/foreach}
       </div>
       <div class="kit_clear"></div>
-      <div class="cl_label cl_days_of_week">{I18n('Days of week')}</div>
+      <div class="cl_label cl_days_of_week">{translate('Days of week')}</div>
       <div class="cl_value cl_days_of_week">
         {foreach $cronjob.days_of_week.options option}
-        <div class="cl_digit_03{foreach $cronjob.days_of_week.values value}{if $value == $option} digit_active{/if}{/foreach}">{truncate(I18n($option), 3, etc='', break=true)}</div>
+        <div class="cl_digit_03{foreach $cronjob.days_of_week.values value}{if $value == $option} digit_active{/if}{/foreach}">{truncate(translate($option), 3, etc='', break=true)}</div>
         {/foreach}
       </div>
       <div class="kit_clear"></div>
-      <div class="cl_label cl_months">{I18n('Months')}</div>
+      <div class="cl_label cl_months">{translate('Months')}</div>
       <div class="cl_value cl_months">
         {foreach $cronjob.months.options option}
-        <div class="cl_digit_03{foreach $cronjob.months.values value}{if $value == $option} digit_active{/if}{/foreach}">{truncate(I18n($option), 3, etc='', break=true)}</div>
+        <div class="cl_digit_03{foreach $cronjob.months.values value}{if $value == $option} digit_active{/if}{/foreach}">{truncate(translate($option), 3, etc='', break=true)}</div>
         {/foreach}
       </div>
       <div class="kit_clear"></div>
       {if count_words($cronjob.next_run.formatted) > 0}
-        <div class="cl_label cl_last_run">{I18n('Last run')}</div> 
+        <div class="cl_label cl_last_run">{translate('Last run')}</div> 
         <div class="cl_value cl_last_run">{$cronjob.last_run.formatted}</div>
-        <div class="cl_label cl_next_run">{I18n('Next run')}</div>
+        <div class="cl_label cl_next_run">{translate('Next run')}</div>
         <div class="cl_value cl_next_run">{$cronjob.next_run.formatted}</div>
         <div class="kit_clear"></div>
-        <div class="cl_label cl_last_status">{I18n('Last Status')}</div>{$cronjob.last_status.value}
+        <div class="cl_label cl_last_status">{translate('Last status')}</div>{$cronjob.last_status.value}
         <div class="kit_clear"></div>
       {/if}
     </fieldset>

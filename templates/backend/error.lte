@@ -15,12 +15,11 @@
  * Use {dump()} to get a list of all in this template available variables!
  *}
 <div id="kit_error">
-  <h2>{I18n('Error message')}</h2>
+  <h2>{translate('Error message')}</h2>
   <div class="error_message">
     {$content}
   </div>
   <div class="error_reporting">
-    {$body=escape($content,'mail')}
-    {I18n('Please help to improve open source software and report this problem to the <a href="mailto:ralf.hertsch@phpmanufaktur.de?subject=Error%20report&amp;body={{ body }}">phpManufaktur</a>.', array(body=$body))}
+    {translate('Please help to improve open source software and report this problem to the <a href="https://phpmanufaktur.de/support" target="_blank">Addons Support Group</a>.')}
   </div>
 </div>   
