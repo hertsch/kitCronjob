@@ -4,12 +4,9 @@
  * kitCronjob
  *
  * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
- * @link http://phpmanufaktur.de
+ * @link https://addons.phpmanufaktur.de/kitCronjob
  * @copyright 2012 phpManufaktur by Ralf Hertsch
- * @license http://www.gnu.org/licenses/gpl.html GNU Public License (GPL)
- * @version $Id$
- *
- * FOR VERSION- AND RELEASE NOTES PLEASE LOOK AT INFO.TXT!
+ * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
  */
 
 // include class.secure.php to protect this file and the whole CMS!
@@ -36,10 +33,29 @@ if (defined('WB_PATH')) {
 if (!defined('LEPTON_PATH'))
   require_once WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/wb2lepton.php';
 
-require_once LEPTON_PATH . '/modules/' . basename(dirname(__FILE__)) . '/initialize.php';
+// use LEPTON 2.x I18n for access to language files
+if (!class_exists('LEPTON_Helper_I18n'))
+  require_once LEPTON_PATH.'/modules/manufaktur_config/framework/LEPTON/Helper/I18n.php';
+
+global $I18n;
+if (!is_object($I18n))
+  $I18n = new LEPTON_Helper_I18n();
+
+if (file_exists(LEPTON_PATH.'/modules/'.basename(dirname(__FILE__)).'/languages/'.LANGUAGE.'.php')) {
+  $I18n->addFile(LANGUAGE.'.php', LEPTON_PATH.'/modules/'.basename(dirname(__FILE__)).'/languages/');
+}
+
+// load language depending configuration file
+if (file_exists(LEPTON_PATH.'/modules/manufaktur_config/languages/'.LANGUAGE.'.cfg.php'))
+  require_once LEPTON_PATH.'/modules/manufaktur_config/languages/'.LANGUAGE.'.cfg.php';
+else
+  require_once LEPTON_PATH.'/modules/manufaktur_config/languages/EN.cfg.php';
+
+require_once LEPTON_PATH.'/modules/manufaktur_config/library.php';
+global $manufakturConfig;
+if (!is_object($manufakturConfig)) $manufakturConfig = new manufakturConfig('kit_cronjob');
 
 global $cronjobInterface;
-
 if (!is_object($cronjobInterface))
   $cronjobInterface = new cronjobInterface();
 
@@ -60,17 +76,17 @@ class cronjobInterface {
   const CRONJOB_STATUS = 'cronjob_status';
   const CRONJOB_TIMESTAMP = 'cronjob_timestamp';
 
-  const CFG_CRONJOB_KEY = dbCronjobConfig::CFG_CRONJOB_KEY;
-  const CFG_CRONJOB_ACTIVE = dbCronjobConfig::CFG_CRONJOB_ACTIVE;
-  const CFG_USE_SSL = dbCronjobConfig::CFG_USE_SSL;
-  const CFG_CRONJOB_NAME_MINIMUM_LENGTH = dbCronjobConfig::CFG_CRONJOB_NAME_MINIMUM_LENGTH;
-  const CFG_USE_TIMEZONE = dbCronjobConfig::CFG_USE_TIMEZONE;
-  const CFG_PHP_EXEC = dbCronjobConfig::CFG_PHP_EXEC;
-  const CFG_LOG_LIST_LIMIT = dbCronjobConfig::CFG_LOG_LIST_LIMIT;
-  const CFG_LOG_SHOW_NO_LOAD = dbCronjobConfig::CFG_LOG_SHOW_NO_LOAD;
-  const CFG_LOG_TABLE_LIMIT = dbCronjobConfig::CFG_LOG_TABLE_LIMIT;
+  const CFG_CRONJOB_KEY = 'cfg_cronjob_key';
+  const CFG_CRONJOB_ACTIVE = 'cfg_cronjob_active';
+  const CFG_USE_SSL = 'cfg_use_ssl';
+  const CFG_CRONJOB_NAME_MINIMUM_LENGTH = 'cfg_cronjob_name_minimum_length';
+  const CFG_USE_TIMEZONE = 'cfg_use_timezone';
+  const CFG_PHP_EXEC = 'cfg_php_exec';
+  const CFG_LOG_LIST_LIMIT = 'cfg_log_list_limit';
+  const CFG_LOG_SHOW_NO_LOAD = 'cfg_log_show_no_load';
+  const CFG_LOG_TABLE_LIMIT = 'cfg_log_table_limit';
 
-  private $field_array = array(
+  protected static $field_array = array(
       self::CRONJOB_ID => -1,
       self::CRONJOB_NAME => '',
       self::CRONJOB_DESCRIPTION => '',
@@ -83,11 +99,25 @@ class cronjobInterface {
       self::CRONJOB_LAST_STATUS => '',
       self::CRONJOB_LAST_RUN => '0000-00-00 00:00:00',
       self::CRONJOB_NEXT_RUN => '0000-00-00 00:00:00',
-      self::CRONJOB_STATUS => dbCronjob::STATUS_ACTIVE,
+      self::CRONJOB_STATUS => 'ACTIVE',
       self::CRONJOB_TIMESTAMP => '0000-00-00 00:00:00');
 
-  private $error = '';
-  private $message = '';
+  protected static $field_translate_array = array(
+      'cronjob_minute',
+      'cronjob_hour',
+      'cronjob_day_of_month',
+      'cronjob_day_of_week',
+      'cronjob_month'
+  );
+
+  protected static $minute_array = array(0,5,10,15,20,25,30,35,40,45,50,55);
+  protected static $hour_array = array(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23);
+  protected static $day_of_month_array = array(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31);
+  protected static $day_of_week_array = array('Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday');
+  protected static $month_array = array('January','February','March','April','May','June','July','August','September','October','November','December');
+
+  private static $error = '';
+  private static $message = '';
 
   protected $lang = NULL;
 
@@ -95,61 +125,68 @@ class cronjobInterface {
    * Constructor for conjobInterface
    */
   public function __construct() {
-    global $lang;
-    $this->lang = $lang;
+    global $I18n;
+    $this->lang = $I18n;
+    // check if the cronjob key is already set
+    $key = $this->getCronjobConfigValue(self::CFG_CRONJOB_KEY);
+    if (empty($key)) {
+      // create a new random key for the cronjob
+      $key = manufakturConfig::generatePassword(12);
+      $this->setCronjobConfigValue(self::CFG_CRONJOB_KEY, $key);
+    }
   } // construct()
 
   /**
-   * Set $this->error to $error
+   * Set self::$error to $error
    *
    * @param string $error
    */
   public function setError($error) {
-    $this->error = $error;
+    self::$error = $error;
   } // setError()
 
   /**
-   * Get Error from $this->error;
+   * Get Error from self::$error;
    *
-   * @return string $this->error
+   * @return string self::$error
    */
   public function getError() {
-    return $this->error;
+    return self::$error;
   } // getError()
 
   /**
-   * Check if $this->error is empty
+   * Check if self::$error is empty
    *
    * @return boolean
    */
   public function isError() {
-    return (bool) !empty($this->error);
+    return (bool) !empty(self::$error);
   } // isError
 
-  /** Set $this->message to $message
+  /** Set self::$message to $message
    *
    * @param string $message
    */
   public function setMessage($message) {
-    $this->message = $message;
+    self::$message = $message;
   } // setMessage()
 
   /**
-   * Get Message from $this->message;
+   * Get Message from self::$message;
    *
-   * @return string $this->message
+   * @return string self::$message
    */
   public function getMessage() {
-    return $this->message;
+    return self::$message;
   } // getMessage()
 
   /**
-   * Check if $this->message is empty
+   * Check if self::$message is empty
    *
    * @return boolean
    */
   public function isMessage() {
-    return (bool) !empty($this->message);
+    return (bool) !empty(self::$message);
   } // isMessage
 
   /**
@@ -160,33 +197,24 @@ class cronjobInterface {
    * @return boolean true on success, false on error
    */
   public function getCronjob($id, &$cronjob = array()) {
-    global $dbCronjob;
+    global $database;
 
-    $SQL = sprintf("SELECT * FROM %s WHERE %s='%s'", $dbCronjob->getTableName(), dbCronjob::FIELD_ID, $id);
-    $cronjob = array();
-    if (!$dbCronjob->sqlExec($SQL, $cronjob)) {
-      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbCronjob->getError()));
+    $SQL = sprintf("SELECT * FROM `%smod_kit_cj_cronjob` WHERE `cronjob_id`='%s'", TABLE_PREFIX, $id);
+    if (null === ($query = $database->query($SQL))) {
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $database->get_error()));
       return false;
     }
-    if (count($cronjob) < 1) {
+    if ($query->numRows() < 1) {
       $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
-      		$this->lang->translate('Error: The record with the <b>ID {{ id }} does not exists!',
-      				array('id' => $id))));
+          $this->lang->translate('Error: The record with the <b>ID {{ id }}</b> does not exists!',
+              array('id' => $id))));
       return false;
     }
-    $cronjob = $cronjob[0];
-
+    $cronjob = $query->fetchRow(MYSQL_ASSOC);
     // explode the fields minute, hour, day_of_month, day_of_week and month
-    $translate = array(
-    		dbCronjob::FIELD_MINUTE,
-    		dbCronjob::FIELD_HOUR,
-    		dbCronjob::FIELD_DAY_OF_MONTH,
-    		dbCronjob::FIELD_DAY_OF_WEEK,
-    		dbCronjob::FIELD_MONTH
-    		);
-    foreach ($translate as $key) {
-    	$array = explode(',', $cronjob[$key]);
-    	$cronjob[$key] = $array;
+    foreach (self::$field_translate_array as $key) {
+      $array = explode(',', $cronjob[$key]);
+      $cronjob[$key] = $array;
     }
     return true;
   } // getCronjob()
@@ -199,27 +227,31 @@ class cronjobInterface {
    * @return boolean
    */
   public function insertCronjob($cronjob, &$id = -1) {
-    global $dbCronjob;
+    global $database;
 
-    // implode the fields minute, hour, day_of_month, day_of_week and month
-    $translate = array(
-    		dbCronjob::FIELD_MINUTE,
-    		dbCronjob::FIELD_HOUR,
-    		dbCronjob::FIELD_DAY_OF_MONTH,
-    		dbCronjob::FIELD_DAY_OF_WEEK,
-    		dbCronjob::FIELD_MONTH
-    );
-    foreach ($translate as $key) {
-    	if (is_array($cronjob[$key])) {
-      	$string = implode(',', $cronjob[$key]);
-      	$cronjob[$key] = $string;
-    	}
+    $fields = '';
+    $values = '';
+    foreach ($cronjob as $key => $value) {
+      if ($key == 'cronjob_id') continue;
+      // implode the fields minute, hour, day_of_month, day_of_week and month
+      if (in_array($key, self::$field_translate_array) && is_array($value))
+        $value = implode(',', $value);
+      if (!empty($fields)) {
+        $fields .= ",`$key`";
+        $values .= ",'$value'";
+      }
+      else {
+        $fields .= "`$key`";
+        $values .= "'$value'";
+      }
     }
-
-    if (!$dbCronjob->sqlInsertRecord($cronjob, $id)) {
-      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbCronjob->getError()));
+    $SQL = sprintf("INSERT INTO `%smod_kit_cj_cronjob` (%s) VALUES (%s)",
+        TABLE_PREFIX, $fields, $values);
+    if (null === $database->query($SQL)) {
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $database->get_error()));
       return false;
     }
+    $id = mysql_insert_id();
     return true;
   } // insertCronjob()
 
@@ -231,11 +263,19 @@ class cronjobInterface {
    * @return boolean
    */
   public function updateCronjob($id, $cronjob) {
-    global $dbCronjob;
+    global $database;
 
-    $where = array(self::CRONJOB_ID => $id);
-    if (!$dbCronjob->sqlUpdateRecord($cronjob, $where)) {
-      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbCronjob->getError()));
+    $values = '';
+    foreach ($cronjob as $key => $value) {
+      // implode the fields minute, hour, day_of_month, day_of_week and month
+      if (in_array($key, self::$field_translate_array) && is_array($value))
+        $value = implode(',', $value);
+      $values .= (!empty($values)) ? ",`$key`='$value'" : "`$key`='$value'";
+    }
+    $SQL = sprintf("UPDATE `%smod_kit_cj_cronjob` SET %s WHERE `cronjob_id`='%d'",
+        TABLE_PREFIX, $values, $id);
+    if (null === $database->query($SQL)) {
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $database->get_error()));
       return false;
     }
     return true;
@@ -247,7 +287,7 @@ class cronjobInterface {
    * @return array
    */
   public function getCronjobFieldArray() {
-    return $this->field_array;
+    return self::$field_array;
   } // getCronjobFieldArray()
 
   /**
@@ -257,16 +297,9 @@ class cronjobInterface {
    * @return boolean
    */
   public function checkCronjobRequests(&$cronjob) {
-    $is_array = array(
-        self::CRONJOB_DAY_OF_MONTH,
-        self::CRONJOB_DAY_OF_WEEK,
-        self::CRONJOB_HOUR,
-        self::CRONJOB_MINUTE,
-        self::CRONJOB_MONTH);
-    foreach ($this->field_array as $key => $value) {
+    foreach (self::$field_array as $key => $value) {
       if (isset($_REQUEST[$key])) {
-        $cronjob[$key] = (in_array($key, $is_array)) ? implode($_REQUEST[$key])
-            : $_REQUEST[$key];
+        $cronjob[$key] = (in_array($key, self::$field_translate_array)) ? implode(',', $_REQUEST[$key]) : $_REQUEST[$key];
       }
     }
     return true;
@@ -274,45 +307,24 @@ class cronjobInterface {
 
   /**
    * Check if a cronjob name is unique or not.
-   * If $ignor_ID is specified the cronjob with this ID will be ignored.
+   * If $ignore_ID is specified the cronjob with this ID will be ignored.
    *
    * @param string $name
    * @param integer $ignore_ID
    * @return boolean result
    */
-  public function checkCronjobNameIsUnique($name, $ignore_ID = NULL) {
-    global $dbCronjob;
-    $result = array();
-    if ($ignore_ID == NULL) {
-      $SQL = sprintf("SELECT `%s` FROM %s WHERE `%s`='%s'", dbCronjob::FIELD_ID, $dbCronjob->getTableName(), dbCronjob::FIELD_NAME, $name);
-    } else {
-      $SQL = sprintf("SELECT `%s` FROM %s WHERE `%s`='%s' AND `%s`!='%s'", dbCronjob::FIELD_ID, $dbCronjob->getTableName(), dbCronjob::FIELD_NAME, $name, dbCronjob::FIELD_ID, $ignore_ID);
-    }
-    if (!$dbCronjob->sqlExec($SQL, $result)) {
-      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbCronjob->getError()));
-      return false;
-    }
-    if (count($result) > 0)
-      return false;
-    return true;
-  } // checkCronjobNameIsUnique()
+  public function checkCronjobNameIsUnique($name, $ignore_ID = null) {
+    global $database;
 
-  /**
-   * This function reads entries from type definition of ENUM() fields and
-   * return an array with the values of the ENUM() string.
-   *
-   * @param string $field
-   * @param reference string $entries
-   * @return boolean - true on success
-   */
-  public function enumColumn2array($field, &$entries = array()) {
-    global $dbCronjob;
-    if (!$dbCronjob->enumColumn2array($field, $entries)) {
-      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbCronjob->getError()));
+    $ignore = ($ignore_ID == null) ? '' : sprintf(" AND `cronjob_id`!='%d'", $ignore_ID);
+    $SQL = sprintf("SELECT `cronjob_id` FROM `%smod_kit_cj_cronjob` WHERE `cronjob_name`='%s'%s",
+        TABLE_PREFIX, $name, $ignore);
+    if (null === ($query = $database->query($SQL))) {
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $database->get_error()));
       return false;
     }
-    return true;
-  } // enumColumn2array()
+    return ($query->numRows() > 0) ? false : true;
+  } // checkCronjobNameIsUnique()
 
   /**
    * Return the default entries for the fields DAY_OF_MONTH, DAY_OF_WEEK, HOUR,
@@ -323,28 +335,26 @@ class cronjobInterface {
    * @return boolean
    */
   public function fieldDefaults2array($field, &$entries = array()) {
-  	global $dbCronjob;
-
-  	switch ($field) {
-  	  case dbCronjob::FIELD_DAY_OF_MONTH:
-  	  	$entries = $dbCronjob->getDay_of_month_array();
+    switch ($field) {
+  	  case self::CRONJOB_DAY_OF_MONTH:
+  	  	$entries = self::$day_of_month_array;
   	  	break;
-  	  case dbCronjob::FIELD_DAY_OF_WEEK:
-  	  	$entries = $dbCronjob->getDay_of_week_array();
+  	  case self::CRONJOB_DAY_OF_WEEK:
+  	  	$entries = self::$day_of_week_array;
   	  	break;
-  	  case dbCronjob::FIELD_HOUR:
-  	  	$entries = $dbCronjob->getHour_array();
+  	  case self::CRONJOB_HOUR:
+  	  	$entries = self::$hour_array;
   	  	break;
-  	  case dbCronjob::FIELD_MINUTE:
-  	  	$entries = $dbCronjob->getMinute_array();
+  	  case self::CRONJOB_MINUTE:
+  	  	$entries = self::$minute_array;
   	  	break;
-  	  case dbCronjob::FIELD_MONTH:
-  	  	$entries = $dbCronjob->getMonth_array();
+  	  case self::CRONJOB_MONTH:
+  	  	$entries = self::$month_array;
   	  	break;
   	  default:
   	  	$this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
-  	  	$this->lang->I18n('There exists no array with default values for the field {{ field }}.',
-  	  	array('field' => $field))));
+  	  	    $this->lang->translate('There exists no array with default values for the field {{ field }}.',
+  	  	        array('field' => $field))));
   	  	return false;
   	}
   	return true;
@@ -358,8 +368,8 @@ class cronjobInterface {
    * @return mixed configuration value
    */
   public function getCronjobConfigValue($key) {
-    global $dbCronjobConfig;
-    return $dbCronjobConfig->getValue($key);
+    global $manufakturConfig;
+    return $manufakturConfig->getValue($key, 'kit_cronjob');
   } // getCronjobConfigValue()
 
   /**
@@ -370,8 +380,14 @@ class cronjobInterface {
    * @return boolean result
    */
   public function setCronjobConfigValue($key, $value) {
-    global $dbCronjobConfig;
-    return $dbCronjobConfig->setValueByName($value, $key);
+    global $manufakturConfig;
+    $data = array(
+        manufakturConfig::FIELD_MODULE_NAME => 'kitCronjob',
+        manufakturConfig::FIELD_MODULE_DIRECTORY => 'kit_cronjob',
+        manufakturConfig::FIELD_NAME => $key,
+        manufakturConfig::FIELD_VALUE => $value
+        );
+    return $manufakturConfig->setValue($data);
   } // setCronjobConfigValue()
 
   /**
@@ -382,56 +398,47 @@ class cronjobInterface {
    * @param array reference $cronjobs
    * @return boolean
    */
-  public function getCronjobsByStatus(&$cronjobs=array(), $status_array=array(dbCronjob::STATUS_ACTIVE, dbCronjob::STATUS_LOCKED)) {
-  	global $dbCronjob;
+  public function getCronjobsByStatus(&$cronjobs=array(), $status_array=array('ACTIVE', 'LOCKED')) {
+  	global $database;
 
-  	$SQL = "SELECT * FROM ".$dbCronjob->getTableName()." WHERE ";
+  	$SQL = "SELECT * FROM `".TABLE_PREFIX."mod_kit_cj_cronjob` WHERE ";
   	$start = true;
   	foreach ($status_array as $status) {
   		if (!$start) $SQL .= " OR ";
   		$start = false;
   		$SQL .= "`cronjob_status`='$status'";
   	}
-  	if (!$dbCronjob->sqlExec($SQL, $cronjobs)) {
-  		$this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbCronjob->getError()));
-  		return false;
+  	if (null == ($query = $database->query($SQL))) {
+  	  $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $database->get_error()));
+  	  return false;
   	}
-  	//if (count($cronjobs) < 1) return false;
-  	$dummy = array();
-  	foreach ($cronjobs as $cronjob) {
-  		$cronjob[dbCronjob::FIELD_HOUR] = explode(',', $cronjob[dbCronjob::FIELD_HOUR]);
-  		$cronjob[dbCronjob::FIELD_MINUTE] = explode(',', $cronjob[dbCronjob::FIELD_MINUTE]);
-  		$cronjob[dbCronjob::FIELD_MONTH] = explode(',', $cronjob[dbCronjob::FIELD_MONTH]);
-  		$cronjob[dbCronjob::FIELD_DAY_OF_MONTH] = explode(',', $cronjob[dbCronjob::FIELD_DAY_OF_MONTH]);
-  		$cronjob[dbCronjob::FIELD_DAY_OF_WEEK] = explode(',', $cronjob[dbCronjob::FIELD_DAY_OF_WEEK]);
-  		$dummy[] = $cronjob;
+  	$cronjobs = array();
+  	while (false !== ($cronjob = $query->fetchRow(MYSQL_ASSOC))) {
+  	  foreach (self::$field_translate_array as $key)
+  	    $cronjob[$key] = explode(',', $cronjob[$key]);
+  	  $cronjobs[] = $cronjob;
   	}
-  	$cronjobs = $dummy;
   	return true;
   } // getCronjobsByStatus()
 
   public function getCronjobProtocol(&$protocol_array, $limit=100, $show_no_load=false) {
-    global $dbCronjobLog;
+    global $database;
 
     if ($show_no_load) {
-      $SQL = sprintf("SELECT * FROM %s ORDER BY `%s` DESC LIMIT %d",
-          $dbCronjobLog->getTableName(),
-          dbCronjobLog::FIELD_TIMESTAMP,
-          $limit);
+      $SQL = sprintf("SELECT * FROM `%smod_kit_cj_log` ORDER BY `log_timestamp` DESC LIMIT %d",
+          TABLE_PREFIX, $limit);
     }
     else {
-      $SQL = sprintf("SELECT * FROM %s WHERE NOT (`%s`='OK' AND `%s`='-1') ORDER BY `%s` DESC LIMIT %d",
-          $dbCronjobLog->getTableName(),
-          dbCronjobLog::FIELD_STATUS,
-          dbCronjobLog::FIELD_CRONJOB_ID,
-          dbCronjobLog::FIELD_TIMESTAMP,
-          $limit);
+      $SQL = sprintf("SELECT * FROM `%smod_kit_cj_log` WHERE NOT (`log_status`='OK' AND `cronjob_id`='-1') ORDER BY `log_timestamp` DESC LIMIT %d",
+          TABLE_PREFIX, $limit);
     }
-    $protocol_array = array();
-    if (!$dbCronjobLog->sqlExec($SQL, $protocol_array)) {
-      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbCronjobLog->getError()));
+    if (null == ($query = $database->query($SQL))) {
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $database->get_error()));
       return false;
     }
+    $protocol_array = array();
+    while (false !== ($protocol = $query->fetchRow(MYSQL_ASSOC)))
+      $protocol_array[] = $protocol;
     return true;
   } // getCronjobProtocol()
 
@@ -441,29 +448,21 @@ class cronjobInterface {
    * @return boolean
    */
   public function shrinkProtocol() {
-    global $dbCronjobLog;
+    global $database;
 
-    $SQL = sprintf("SELECT MAX(`%s`) FROM %s",
-        dbCronjobLog::FIELD_ID,
-        $dbCronjobLog->getTableName());
-    $result = array();
-    if (!$dbCronjobLog->sqlExec($SQL, $result)) {
-      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbCronjobLog->getError()));
+    $SQL = sprintf("SELECT MAX(`log_id`) FROM `%smod_kit_cj_log`", TABLE_PREFIX);
+    if ((null == ($max = $database->get_one($SQL, MYSQL_ASSOC))) && $database->is_error()) {
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $database->get_error()));
       return false;
     }
-    if (count($result) > 0) {
-      $max = (int) $result[0][sprintf('MAX(`%s`)', dbCronjobLog::FIELD_ID)];
-      $limit = $this->getCronjobConfigValue(self::CFG_LOG_TABLE_LIMIT);
-      $shrink = $max - $limit;
-      if ($shrink > 0) {
-        $SQL = sprintf("DELETE FROM %s WHERE `%s` < '%d'",
-          $dbCronjobLog->getTableName(),
-          dbCronjobLog::FIELD_ID,
-          $shrink);
-        if (!$dbCronjobLog->sqlExec($SQL, $result)) {
-          $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbCronjobLog->getError()));
-          return false;
-        }
+
+    $limit = $this->getCronjobConfigValue(self::CFG_LOG_TABLE_LIMIT);
+    $shrink = $max - $limit;
+    if ($shrink > 0) {
+      $SQL = sprintf("DELETE FROM `%smod_kit_cj_log` WHERE `log_id` < '%d'", TABLE_PREFIX, $shrink);
+      if (null == $database->query($SQL)) {
+        $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $database->get_error()));
+        return false;
       }
     }
     return true;

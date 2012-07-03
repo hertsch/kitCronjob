@@ -4,12 +4,9 @@
  * kitCronjob
  *
  * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
- * @link http://phpmanufaktur.de
- * @copyright 2012 - phpManufaktur by Ralf Hertsch
- * @license http://www.gnu.org/licenses/gpl.html GNU Public License
- * @version $Id$
- *
- * FOR VERSION- AND RELEASE NOTES PLEASE LOOK AT INFO.TXT!
+ * @link https://addons.phpmanufaktur.de/kitCronjob
+ * @copyright 2012 phpManufaktur by Ralf Hertsch
+ * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
  */
 
 // include class.secure.php to protect this file and the whole CMS!
@@ -35,28 +32,23 @@ if (defined('WB_PATH')) {
 // wb2lepton compatibility
 if (!defined('LEPTON_PATH')) require_once WB_PATH.'/modules/'.basename(dirname(__FILE__)).'/wb2lepton.php';
 
-require_once LEPTON_PATH.'/modules/kit_cronjob/initialize.php';
-
 global $admin;
+global $database;
 
 $tables = array(
-		'dbCronjob',
-		'dbCronjobConfig',
-    'dbCronjobLog'
- 	  );
-$error = '';
+    'mod_kit_cj_log',
+		'mod_kit_cj_cronjob'
+    );
 
 foreach ($tables as $table) {
-	$delete = null;
-	$delete = new $table();
-	if ($delete->sqlTableExists()) {
-		if (!$delete->sqlDeleteTable()) {
-			$error .= sprintf('<p>[UNINSTALL] %s</p>', $delete->getError());
-		}
-	}
+  $SQL = sprintf("DROP TABLE IF EXISTS `%s%s`", TABLE_PREFIX, $table);
+  if (null == $database->query($SQL))
+    $admin->print_error($database->get_error());
 }
 
-// Prompt Errors
-if (!empty($error)) {
-	$admin->print_error($error);
+require_once LEPTON_PATH.'/modules/manufaktur_config/library.php';
+// Delete settings from the configuration
+$config = new manufakturConfig();
+if (!$config->deleteSettingsForModule('kit_cronjob')) {
+  $admin->print_error($config->getError());
 }

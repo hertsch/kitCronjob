@@ -4,12 +4,9 @@
  * kitCronjob
  *
  * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
- * @link http://phpmanufaktur.de
+ * @link https://addons.phpmanufaktur.de/kitCronjob
  * @copyright 2012 phpManufaktur by Ralf Hertsch
- * @license http://www.gnu.org/licenses/gpl.html GNU Public License (GPL)
- * @version $Id$
- *
- * FOR VERSION- AND RELEASE NOTES PLEASE LOOK AT INFO.TXT!
+ * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
  */
 
 // first we need the LEPTON config.php
@@ -19,6 +16,9 @@ require_once('../../config.php');
 if (!defined('LEPTON_PATH'))
   require_once WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/wb2lepton.php';
 
+require_once LEPTON_PATH.'/modules/manufaktur_config/library.php';
+global $manufakturConfig;
+if (!is_object($manufakturConfig)) $manufakturConfig = new manufakturConfig('kit_cronjob');
 
 class cronjobExec {
 
@@ -104,40 +104,26 @@ class cronjobExec {
    * @return boolean
    */
   protected function getSettings() {
-    global $database;
-    // is cronjob active?
-    $SQL = "SELECT `cfg_value` FROM ".TABLE_PREFIX."mod_kit_cj_config WHERE `cfg_name`='cfg_cronjob_active'";
-    $this->cronjob_active = (bool) $database->get_one($SQL, MYSQL_ASSOC);
-    if ($database->is_error()) {
-      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $database->get_error()));
+    global $manufakturConfig;
+
+    if (null === ($this->cronjob_active = $manufakturConfig->getValue('cfg_cronjob_active', 'kit_cronjob'))) {
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $manufakturConfig->getError()));
       exit($this->getError());
     }
-    // cronjob key
-    $SQL = "SELECT `cfg_value` FROM ".TABLE_PREFIX."mod_kit_cj_config WHERE `cfg_name`='cfg_cronjob_key'";
-    $this->cronjob_key = $database->get_one($SQL, MYSQL_ASSOC);
-    if ($database->is_error()) {
-      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $database->get_error()));
+    if (null === ($this->cronjob_key = $manufakturConfig->getValue('cfg_cronjob_key', 'kit_cronjob'))) {
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $manufakturConfig->getError()));
       exit($this->getError());
     }
-    // use SSL?
-    $SQL = "SELECT `cfg_value` FROM ".TABLE_PREFIX."mod_kit_cj_config WHERE `cfg_name`='cfg_use_ssl'";
-    $this->use_ssl = (bool) $database->get_one($SQL, MYSQL_ASSOC);
-    if ($database->is_error()) {
-      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $database->get_error()));
+    if (null === ($this->use_ssl = $manufakturConfig->getValue('cfg_use_ssl', 'kit_cronjob'))) {
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $manufakturConfig->getError()));
       exit($this->getError());
     }
-    // timezone
-    $SQL = "SELECT `cfg_value` FROM ".TABLE_PREFIX."mod_kit_cj_config WHERE `cfg_name`='cfg_timezone'";
-    $this->timezone = $database->get_one($SQL, MYSQL_ASSOC);
-    if ($database->is_error()) {
-      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $database->get_error()));
+    if (null === ($this->timezone = $manufakturConfig->getValue('cfg_use_timezone', 'kit_cronjob'))) {
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $manufakturConfig->getError()));
       exit($this->getError());
     }
-    // PHP Exec
-    $SQL = "SELECT `cfg_value` FROM ".TABLE_PREFIX."mod_kit_cj_config WHERE `cfg_name`='cfg_php_exec'";
-    $this->php_exec = $database->get_one($SQL, MYSQL_ASSOC);
-    if ($database->is_error()) {
-      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $database->get_error()));
+    if (null === ($this->php_exec = $manufakturConfig->getValue('cfg_php_exec', 'kit_cronjob'))) {
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $manufakturConfig->getError()));
       exit($this->getError());
     }
     return true;
