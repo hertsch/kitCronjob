@@ -1,15 +1,13 @@
 /**
  * kitCronjob
- * 
+ *
  * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
- * @link http://phpmanufaktur.de
- * @copyright 2012 - phpManufaktur by Ralf Hertsch
- * @license http://www.gnu.org/licenses/gpl.html GNU Public License
- * @version $Id$
- * 
- * FOR VERSION- AND RELEASE NOTES PLEASE LOOK AT INFO.TXT!
+ * @link https://addons.phpmanufaktur.de/kitCronjob
+ * @copyright 2012 phpManufaktur by Ralf Hertsch
+ * @license MIT License (MIT) http://www.opensource.org/licenses/MIT
  */
 
+@import url(../manufaktur_config/backend.css);
 
 /**
 General settings for all KIT modules
@@ -60,7 +58,6 @@ General settings for all KIT modules
   background-color: transparent;
   text-decoration: none;
 }
-#i18n_container > .navigation,
 .navigation {
   padding: 3px 0 3px 10px;
   margin: 15px 0 0 0;
@@ -68,13 +65,11 @@ General settings for all KIT modules
   list-style-type: none;
   text-align: left;
 }
-#i18n_container > .navigation li,
 .navigation li {
   display: inline;
   margin: 0;
   padding: 0;
 }
-#i18n_container > .navigation li a,
 .navigation li a {
   text-decoration: none;
   padding: 3px 7px;
@@ -82,21 +77,16 @@ General settings for all KIT modules
   border: 1px solid #dddddd;
   border-bottom: none;
 }
-#i18n_container > .navigation li a:link,
-#i18n_container > .navigation li a:visited,
 .navigation li a:link,
 .navigation li a:visited {
   color: #fff;
   background-color: #969696;
 }
-#i18n_container > .navigation li a:hover,
-#i18n_container > .navigation li a:active,
 .navigation li a:hover,
 .navigation li a:active {
   background-color: #363636;
   color: #fff;
 }
-#i18n_container > .navigation li.selected a,
 .navigation li.selected a { 
   position: relative;
   top: 1px;
@@ -167,7 +157,6 @@ kbd {
 /**
 Cronjob list
 **/
-#i18n_about,
 #kit_about,
 #kit_error,
 #cronjob_edit,
@@ -184,12 +173,8 @@ Cronjob list
 #kit_error {
   background-image: url(images/background/error.png);
 }
-#i18n_about,
 #kit_about {
   background-image: none;
-}
-#cronjob_config {
-  background-image: url(images/background/settings.png);
 }
 #cronjob_edit {
   background-image: url(images/background/cronjob-edit.png);
@@ -264,9 +249,6 @@ Cronjob list
 }
 .cl_label.cl_id {
   width: 20px;
-}
-.cl_label.cl_name {
-  width: 50px;
 }
 .cl_value {
   float: left;
@@ -373,6 +355,8 @@ Cronjob Settings
   width: 200px;
   font-weight: bold;
 }
+.cj_status,
+.cj_info,
 .cj_textarea,
 .cj_text {
   float: left;
