@@ -63,7 +63,6 @@ class cronjobBackend {
 
   const ACTION_ABOUT = 'abt';
   const ACTION_CONFIG = 'cfg';
-  const ACTION_CONFIG_CHECK = 'cfgc';
   const ACTION_DEFAULT = 'def';
   const ACTION_CRONJOBS = 'cron';
   const ACTION_EDIT = 'edt';
